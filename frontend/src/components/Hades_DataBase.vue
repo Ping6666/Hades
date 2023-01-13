@@ -1,6 +1,8 @@
 <template>
   <p>{{ msg }}</p>
-  <button @click="fetcher">fetch backend/api/auth</button>
+  <button @click="db">fetch backend/db</button>
+  <button @click="db_create">fetch backend/db/create</button>
+  <button @click="db_read">fetch backend/db/read</button>
   <p>{{ rt }}</p>
 </template>
 
@@ -16,16 +18,49 @@ export default {
     msg: String
   },
   methods: {
-    async fetcher() {
-      // const res = await fetch('http://localhost:3000/api', {
-      const res = await fetch('http://localhost:3000/users', {
-        method: 'GET',
-        // method: 'POST',
-      });
+    async db() {
+      try {
+        const url = 'http://localhost:3000/db';
+        const res = await (await fetch(url)).json();
 
-      console.log(res);
-      var _res = await res.json();
-      this.rt = _res.message;
+        this.rt = res.message;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async db_create() {
+      try {
+        const url = 'http://localhost:3000/db/create?db=Hi&coll=AA';
+        const item = { "name": "DO", "age": 18 };
+        const res = await (await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify(item),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })).json();
+
+        this.rt = res.message;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async db_read() {
+      try {
+        const url = 'http://localhost:3000/db/read?db=Hi&coll=AA';
+        const item = {};
+        const res = await (await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify(item),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })).json();
+
+        this.rt = res.message;
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 }
