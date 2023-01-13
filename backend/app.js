@@ -8,23 +8,21 @@ var logger = require('morgan');
 var index_router = require('./routes/index');
 var users_router = require('./routes/users');
 var api_auth_router = require('./routes/api_auth');
-
-var db_server = require('./database/server')
+var db_router = require('./routes/db');
 
 var app = express();
 
 // cors
 const cors_options = {
   origin: [
-    'http://localhost:8080',
+    // 'http://localhost:8080',
+    // 'http://frontend:8080',
+    'http://127.0.0.1:8080',
   ],
-  methods: ['GET'],
-  allowedHeaders: ['Content-Type'],
-  // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  // allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(cors_options));
-// app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -38,7 +36,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index_router);
 app.use('/users', users_router);
-app.use('/api', api_auth_router);
+app.use('/api/auth', api_auth_router);
+app.use('/db', db_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
