@@ -30,7 +30,7 @@
 
 <script>
 export default {
-  name: 'Hades_DataBase',
+  name: 'HadesDatabase',
   props: {
     msg: String
   },
