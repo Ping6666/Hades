@@ -6,10 +6,6 @@
       check out the
       <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
     </p>
-
-    <h3>Hades DataBase</h3>
-    <Hades_DataBase msg="AAA"/>
-
     <h3>Installed CLI Plugins</h3>
     <ul>
       <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank"
@@ -38,13 +34,8 @@
 </template>
 
 <script>
-import Hades_DataBase from './Hades_DataBase.vue'
-
 export default {
   name: 'HelloWorld',
-  components: {
-    Hades_DataBase
-  },
   props: {
     msg: String
   }
