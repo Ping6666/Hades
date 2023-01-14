@@ -12,6 +12,8 @@ const router = createRouter({
         { path: '/announcement', component: HadesAnnouncement },
         { path: '/equipment', component: HadesEquipment },
         { path: '/property', component: HadesProperty },
+        { path: '/:pathMatch(.*)*', redirect: '/' },
+        { path: '/:pathMatch(.*)', redirect: '/' },
     ],
 });
 
