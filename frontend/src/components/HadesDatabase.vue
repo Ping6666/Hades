@@ -65,7 +65,10 @@ export default {
     async db() {
       try {
         const url = 'http://localhost:3000/db';
-        const res = await (await fetch(url)).json();
+        const res = await (await fetch(url, {
+          method: 'GET',
+          mode: 'cors',
+        })).json();
 
         this.rt = res.message;
       } catch (error) {
@@ -78,6 +81,7 @@ export default {
         const item = this.input_item;
         const res = await (await fetch(url, {
           method: 'POST',
+          mode: 'cors',
           body: JSON.stringify(item),
           headers: {
             'Content-Type': 'application/json',
@@ -95,6 +99,7 @@ export default {
         const item = this.input_item;
         const res = await (await fetch(url, {
           method: 'POST',
+          mode: 'cors',
           body: JSON.stringify(item),
           headers: {
             'Content-Type': 'application/json',
