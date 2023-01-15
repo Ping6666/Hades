@@ -28,6 +28,7 @@
     <button @click="db_read">fetch backend/db/read</button>
 
     <p>{{ rt }}</p>
+    <p>{{ checked }}</p>
   </div>
 
   <div class="container table-responsive">
@@ -53,7 +54,7 @@
 
                 <td>
                   <div>
-                    <input type="checkbox">
+                    <input type="checkbox" :value="row['_id']" v-model="checked">
                   </div>
                 </td>
 
@@ -88,6 +89,7 @@ export default {
   data() {
     return {
       rt: '',
+      checked: [],
 
       // form
       form_db_db: 'Hi',
