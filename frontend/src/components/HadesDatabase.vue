@@ -1,46 +1,103 @@
 <template>
-  <p>{{ msg }}</p>
+  <div>
 
-  <form id="form_db">
+    <p>{{ msg }}</p>
 
-    <p>db: {{ form_db_db }}</p>
-    <input type="text" v-model="form_db_db" />
+    <form id="form_db">
 
-    <p>coll: {{ form_db_coll }}</p>
-    <input type="text" v-model="form_db_coll" />
+      <p>db: {{ form_db_db }}</p>
+      <input type="text" v-model="form_db_db" />
 
-  </form>
+      <p>coll: {{ form_db_coll }}</p>
+      <input type="text" v-model="form_db_coll" />
 
-  <form id="form_item">
+    </form>
 
-    <p>name: {{ form_item_name }}</p>
-    <input type="text" v-model="form_item_name" />
+    <form id="form_item">
 
-    <p>age: {{ form_item_age }}</p>
-    <input type="text" v-model="form_item_age" />
+      <p>name: {{ form_item_name }}</p>
+      <input type="text" v-model="form_item_name" />
 
-  </form>
+      <p>age: {{ form_item_age }}</p>
+      <input type="text" v-model="form_item_age" />
 
-  <button @click="db">fetch backend/db</button>
-  <button @click="db_create">fetch backend/db/create</button>
-  <button @click="db_read">fetch backend/db/read</button>
+    </form>
 
-  <p>{{ rt }}</p>
+    <button @click="db">fetch backend/db</button>
+    <button @click="db_create">fetch backend/db/create</button>
+    <button @click="db_read">fetch backend/db/read</button>
+
+    <p>{{ rt }}</p>
+  </div>
+
+  <div class="container table-responsive">
+    <div class="my_table">
+
+      <div class="row">
+        <div class="col-12">
+
+          <table class="table table-bordered table-hover w-auto">
+
+            <thead>
+              <tr>
+
+                <th v-for="(value, key) in columns" :key="key">
+                  {{ value }}
+                </th>
+
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="(row, i_key) in get_sorted_rows" :key="i_key">
+
+                <td>
+                  <div>
+                    <input type="checkbox">
+                  </div>
+                </td>
+
+                <td v-for="(column, j_key) in column_keys" :key="j_key">
+                  {{ row[column] }}
+                </td>
+
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div>
+    HI there!
+  </div>
+
 </template>
 
 <script>
 export default {
   name: 'HadesDatabase',
   props: {
-    msg: String
+    msg: String,
+    columns: Array,
   },
   data() {
     return {
       rt: '',
+
+      // form
       form_db_db: 'Hi',
       form_db_coll: 'AA',
       form_item_name: '',
       form_item_age: '',
+
+      // database
+      db_columns: [],
+      db_rows: [],
     }
   },
   computed: {
@@ -59,6 +116,21 @@ export default {
       }
 
       return item;
+    },
+    column_keys() {
+      // return Object.keys(this.columns);
+      const remove_col = 'checkbox';
+      var c_column_keys = Object.values(this.columns);
+
+      c_column_keys = c_column_keys.filter((item) => {
+        return item !== remove_col;
+      });
+
+      return c_column_keys;
+    },
+    get_sorted_rows() {
+      // TODO sort
+      return this.db_rows;
     },
   },
   methods: {
@@ -88,7 +160,12 @@ export default {
           },
         })).json();
 
-        this.rt = res.message;
+        this.rt = `new document id: ${res.message['insertedId']}`;
+
+        if (res.message['acknowledged']) {
+          this.form_item_name = '';
+          this.form_item_age = '';
+        }
       } catch (error) {
         console.log(error);
       }
@@ -106,11 +183,22 @@ export default {
           },
         })).json();
 
-        this.rt = res.message;
+        this.db_rows = res.message;
       } catch (error) {
         console.log(error);
       }
     }
-  }
+  },
+  beforeMount() {
+    this.db_read();
+  },
 }
 </script>
+
+<style>
+.my_table {
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+}
+</style>
