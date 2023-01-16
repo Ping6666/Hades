@@ -3,32 +3,69 @@
 
     <p>{{ msg }}</p>
 
-    <form id="form_db">
-
-      <p>db: {{ form_db_db }}</p>
-      <input type="text" v-model="form_db_db" />
-
-      <p>coll: {{ form_db_coll }}</p>
-      <input type="text" v-model="form_db_coll" />
-
-    </form>
-
     <form id="form_item">
 
-      <p>name: {{ form_item_name }}</p>
-      <input type="text" v-model="form_item_name" />
+      <p>name: {{ form_name }}</p>
+      <input type="text" v-model="form_name" />
 
-      <p>age: {{ form_item_age }}</p>
-      <input type="text" v-model="form_item_age" />
+      <p>age: {{ form_age }}</p>
+      <input type="text" v-model="form_age" />
 
     </form>
 
-    <button @click="db">fetch backend/db</button>
-    <button @click="db_create">fetch backend/db/create</button>
-    <button @click="db_read">fetch backend/db/read</button>
-
-    <p>{{ rt }}</p>
     <p>{{ checked }}</p>
+  </div>
+
+  <div class="container">
+    <div class="d-flex justify-content-between">
+
+      <div>
+
+        <button type="button" class="btn btn-info mx-1" title="information">
+          <font-awesome-icon icon="fa-solid fa-circle-info" />
+        </button>
+
+        <button type="button" class="btn btn-secondary mx-1" title="setting">
+          <font-awesome-icon icon="fa-solid fa-gear" />
+        </button>
+
+        <button type="button" class="btn btn-secondary mx-1" title="filter">
+          <font-awesome-icon icon="fa-solid fa-filter" />
+        </button>
+
+        <input class="mx-1" type="text" placeholder="global search">
+
+        <button type="button" class="btn btn-success  mx-1" title="refresh" @click="db_read">
+          <font-awesome-icon icon="fa-solid fa-arrows-rotate" />
+        </button>
+
+      </div>
+
+      <div>
+
+        <button type="button" class="btn btn-primary mx-1" title="view">
+          <font-awesome-icon icon="fa-solid fa-eye" />
+        </button>
+
+        <button type="button" class="btn btn-success mx-1" title="add" @click="db_create">
+          <font-awesome-icon icon="fa-solid fa-plus" />
+        </button>
+
+        <button type="button" class="btn btn-warning mx-1" title="update">
+          <font-awesome-icon icon="fa-solid fa-pen" />
+        </button>
+
+        <button type="button" class="btn btn-warning mx-1" title="replace">
+          <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+        </button>
+
+        <button type="button" class="btn btn-danger mx-1" title="trash">
+          <font-awesome-icon icon="fa-solid fa-trash" />
+        </button>
+
+      </div>
+
+    </div>
   </div>
 
   <div class="container table-responsive">
@@ -73,10 +110,6 @@
     </div>
   </div>
 
-  <div>
-    HI there!
-  </div>
-
 </template>
 
 <script>
@@ -84,6 +117,8 @@ export default {
   name: 'HadesDatabase',
   props: {
     msg: String,
+    db_name: String,
+    coll_name: String,
     columns: Array,
   },
   data() {
@@ -92,10 +127,8 @@ export default {
       checked: [],
 
       // form
-      form_db_db: 'Hi',
-      form_db_coll: 'AA',
-      form_item_name: '',
-      form_item_age: '',
+      form_name: '',
+      form_age: '',
 
       // database
       db_columns: [],
@@ -104,17 +137,17 @@ export default {
   },
   computed: {
     uri_query() {
-      return `db=${this.form_db_db}&coll=${this.form_db_coll}`;
+      return `db=${this.db_name}&coll=${this.coll_name}`;
     },
     input_item() {
       const item = {};
 
-      if (this.form_item_name != '') {
-        item.name = this.form_item_name;
+      if (this.form_name != '') {
+        item.name = this.form_name;
       }
 
-      if (this.form_item_age != '') {
-        item.age = this.form_item_age;
+      if (this.form_age != '') {
+        item.age = this.form_age;
       }
 
       return item;
@@ -136,18 +169,11 @@ export default {
     },
   },
   methods: {
-    async db() {
-      try {
-        const url = 'http://localhost:3000/db';
-        const res = await (await fetch(url, {
-          method: 'GET',
-          mode: 'cors',
-        })).json();
+    form_clear() {
+      this.form_name = '';
+      this.form_age = '';
 
-        this.rt = res.message;
-      } catch (error) {
-        console.log(error);
-      }
+      return;
     },
     async db_create() {
       try {
@@ -165,9 +191,10 @@ export default {
         this.rt = `new document id: ${res.message['insertedId']}`;
 
         if (res.message['acknowledged']) {
-          this.form_item_name = '';
-          this.form_item_age = '';
+          this.form_clear();
         }
+
+        this.db_read();
       } catch (error) {
         console.log(error);
       }
