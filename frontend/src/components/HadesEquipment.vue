@@ -1,7 +1,7 @@
 <template>
   <p>Hades Equipment</p>
 
-  <DatabaseTable msg="DatabaseTable" db_name="Hi" coll_name="AA" :columns="['checkbox', 'name', 'age']" />
+  <DatabaseTable msg="DatabaseTable" db_name="Hi" coll_name="AA" :columns="['name', 'age']" />
 </template>
 
 <script>

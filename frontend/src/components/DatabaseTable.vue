@@ -8,7 +8,8 @@
 
   <Teleport to="body" v-if="modal_show">
 
-    <DatabaseModal @cb_show="no_show" />
+    <DatabaseModal :db_name="db_name" :coll_name="coll_name" :mode="mode" :ids="checked" :column_keys="column_keys"
+      @cb_show="no_show" @cb_change_mode="change_mode" />
 
   </Teleport>
 
@@ -39,19 +40,22 @@
 
       <div>
 
-        <button type="button" class="btn btn-success mx-1" title="add" @click="db_create">
+        <button type="button" class="btn btn-success mx-1" title="create" @click="show('create')">
           <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
 
-        <button type="button" class="btn btn-primary mx-1" title="view" @click="show">
+        <button type="button" class="btn btn-primary mx-1" :disabled="checked.length !== 1" title="read"
+          @click="show('read')">
           <font-awesome-icon icon="fa-solid fa-eye" />
         </button>
 
-        <button type="button" class="btn btn-warning mx-1" title="edit" @click="show">
+        <button type="button" class="btn btn-warning mx-1" :disabled="checked.length !== 1" title="update"
+          @click="show('update')">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" />
         </button>
 
-        <button type="button" class="btn btn-danger mx-1" title="trash" @click="show">
+        <button type="button" class="btn btn-danger mx-1" :disabled="checked.length === 0" title="delete"
+          @click="show('delete')">
           <font-awesome-icon icon="fa-solid fa-trash" />
         </button>
 
@@ -70,6 +74,9 @@
 
             <thead>
               <tr>
+
+                <th>
+                </th>
 
                 <th v-for="(value, key) in columns" :key="key">
                   {{ value }}
@@ -121,6 +128,7 @@ export default {
   data() {
     return {
       rt: '',
+      mode: '',
       checked: [],
 
       // form
@@ -154,12 +162,12 @@ export default {
     },
     column_keys() {
       // return Object.keys(this.columns);
-      const remove_col = 'checkbox';
+      // const remove_col = 'checkbox';
       var c_column_keys = Object.values(this.columns);
 
-      c_column_keys = c_column_keys.filter((item) => {
-        return item !== remove_col;
-      });
+      // c_column_keys = c_column_keys.filter((item) => {
+      //   return item !== remove_col;
+      // });
 
       return c_column_keys;
     },
@@ -172,40 +180,30 @@ export default {
     form_clear() {
       this.form_name = '';
       this.form_age = '';
-
-      return;
     },
-    show() {
+    selection_clear() {
+      if (this.mode == 'create') {
+        // clear current checked item(s)
+        this.checked = [];
+      }
+    },
+    show(c_mode) {
       this.modal_show = true;
-      return;
+      this.mode = c_mode;
+
+      this.selection_clear();
     },
     no_show() {
       this.modal_show = false;
-      return;
+      this.mode = '';
+      this.checked = [];
+
+      this.db_read();
     },
-    async db_create() {
-      try {
-        const url = `http://localhost:3000/db/create?${this.uri_query}`;
-        const item = this.input_item;
-        const res = await (await fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(item),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })).json();
+    change_mode(c_mode) {
+      this.mode = c_mode;
 
-        this.rt = `new document id: ${res.message['insertedId']}`;
-
-        if (res.message['acknowledged']) {
-          this.form_clear();
-        }
-
-        this.db_read();
-      } catch (error) {
-        console.log(error);
-      }
+      this.selection_clear();
     },
     async db_read() {
       try {
