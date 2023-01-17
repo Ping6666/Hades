@@ -3,18 +3,14 @@
 
     <p>{{ msg }}</p>
 
-    <form id="form_item">
-
-      <p>name: {{ form_name }}</p>
-      <input type="text" v-model="form_name" />
-
-      <p>age: {{ form_age }}</p>
-      <input type="text" v-model="form_age" />
-
-    </form>
-
     <p>{{ checked }}</p>
   </div>
+
+  <Teleport to="body" v-if="modal_show">
+
+    <DatabaseModal @cb_show="no_show" />
+
+  </Teleport>
 
   <div class="container">
     <div class="d-flex justify-content-between">
@@ -43,23 +39,19 @@
 
       <div>
 
-        <button type="button" class="btn btn-primary mx-1" title="view">
-          <font-awesome-icon icon="fa-solid fa-eye" />
-        </button>
-
         <button type="button" class="btn btn-success mx-1" title="add" @click="db_create">
           <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
 
-        <button type="button" class="btn btn-warning mx-1" title="update">
-          <font-awesome-icon icon="fa-solid fa-pen" />
+        <button type="button" class="btn btn-primary mx-1" title="view" @click="show">
+          <font-awesome-icon icon="fa-solid fa-eye" />
         </button>
 
-        <button type="button" class="btn btn-warning mx-1" title="replace">
+        <button type="button" class="btn btn-warning mx-1" title="edit" @click="show">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" />
         </button>
 
-        <button type="button" class="btn btn-danger mx-1" title="trash">
+        <button type="button" class="btn btn-danger mx-1" title="trash" @click="show">
           <font-awesome-icon icon="fa-solid fa-trash" />
         </button>
 
@@ -113,13 +105,18 @@
 </template>
 
 <script>
+import DatabaseModal from './DatabaseModal.vue'
+
 export default {
-  name: 'HadesDatabase',
+  name: 'DatabaseTable',
   props: {
     msg: String,
     db_name: String,
     coll_name: String,
     columns: Array,
+  },
+  components: {
+    DatabaseModal,
   },
   data() {
     return {
@@ -133,6 +130,9 @@ export default {
       // database
       db_columns: [],
       db_rows: [],
+
+      // modal
+      modal_show: false,
     }
   },
   computed: {
@@ -173,6 +173,14 @@ export default {
       this.form_name = '';
       this.form_age = '';
 
+      return;
+    },
+    show() {
+      this.modal_show = true;
+      return;
+    },
+    no_show() {
+      this.modal_show = false;
       return;
     },
     async db_create() {
