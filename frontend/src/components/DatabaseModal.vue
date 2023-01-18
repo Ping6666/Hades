@@ -9,8 +9,8 @@
           <h5 class="modal-title col-md-10">
             <div class="d-flex justify-content-between">
 
-              <div>
-                {{ mode }}
+              <div class="text-capitalize">
+                {{ mode }} mode
               </div>
 
               <div>
@@ -38,7 +38,8 @@
             </div>
           </h5>
 
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+            @click="close_stage"></button>
         </div>
 
         <div class="modal-body">
@@ -75,14 +76,46 @@
           <button type="button" class="btn btn-primary" v-if="mode === 'update'" :disabled="cannot_save"
             @click="db_update">Save</button>
 
-          <!-- TODO two stage delete -->
-          <button type="button" class="btn btn-primary" v-if="mode === 'delete'" @click="db_delete">Save</button>
+          <button type="button" class="btn btn-primary" v-if="mode === 'delete'" @click="open_stage(1)">Confirm</button>
 
         </div>
 
       </div>
     </div>
+
   </div>
+
+  <div class="modal fade" ref="two_stage_deletion" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title col-md-10">
+            <div class="text-capitalize">
+              {{ mode }} mode
+            </div>
+          </h5>
+
+          <button type="button" class="btn-close" aria-label="Close" @click="open_stage(0)"></button>
+        </div>
+
+        <div class="modal-body">
+          Confirm deletion
+        </div>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-secondary" @click="open_stage(0)">Cancel</button>
+          <button type="button" class="btn btn-primary" @click="db_delete">Confirm</button>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
 
 </template>
 
@@ -105,6 +138,7 @@ export default {
   data() {
     return {
       the_modal: null,
+      the_modal_deletion: null,
 
       db_rows: [],
 
@@ -159,11 +193,18 @@ export default {
       this.clear_form();
       this.$emit("cb_set_mode", mode);
     },
-    open() {
-      this.the_modal.show();
+    open_stage(stage) {
+      if (stage === 0) {
+        this.the_modal.show();
+        this.the_modal_deletion.hide();
+      } else if (stage === 1) {
+        this.the_modal.hide();
+        this.the_modal_deletion.show();
+      }
     },
-    close() {
+    close_stage() {
       this.the_modal.hide();
+      this.the_modal_deletion.hide();
 
       this.clear_form();
       this.$emit("cb_set_mode", null);
@@ -173,7 +214,7 @@ export default {
         const body = this.get_item;
         this.database_connection.create(body);
 
-        this.close();
+        this.close_stage();
       } catch (error) {
         console.log(error);
       }
@@ -204,7 +245,7 @@ export default {
         const body = Object.assign({}, this.get_filter, { 'item': this.get_item });
         this.database_connection.update(body);
 
-        this.close();
+        this.close_stage();
       } catch (error) {
         console.log(error);
       }
@@ -214,7 +255,7 @@ export default {
         const body = this.get_filter;
         this.database_connection.delete(body);
 
-        this.close();
+        this.close_stage();
       } catch (error) {
         console.log(error);
       }
@@ -226,7 +267,12 @@ export default {
       backdrop: 'static',
       keyboard: false,
     });
-    this.open();
+    this.the_modal_deletion = new Modal(this.$refs.two_stage_deletion, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    this.open_stage(0);
 
     this.clear_form();
 
