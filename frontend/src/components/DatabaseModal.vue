@@ -1,6 +1,6 @@
 <template>
 
-  <div class="modal fade" ref="db_model" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" ref="db_modal" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
@@ -14,23 +14,23 @@
               </div>
 
               <div>
-                <button type="button" class="btn btn-success mx-1" :disabled="cannot_switch_to_create" title="create"
+                <button type="button" class="btn btn-success mx-1" :disabled="(mode === 'create')" title="create"
                   @click="change_mode('create')">
                   <font-awesome-icon icon="fa-solid fa-plus" />
                 </button>
 
-                <button type="button" class="btn btn-primary mx-1" :disabled="cannot_switch_to_read" title="read"
-                  @click="change_mode('read')">
+                <button type="button" class="btn btn-primary mx-1" :disabled="((mode === 'read') || (ids.length !== 1))"
+                  title="read" @click="change_mode('read')">
                   <font-awesome-icon icon="fa-solid fa-eye" />
                 </button>
 
-                <button type="button" class="btn btn-warning mx-1" :disabled="cannot_switch_to_update" title="update"
-                  @click="change_mode('update')">
+                <button type="button" class="btn btn-warning mx-1"
+                  :disabled="((mode === 'update') || (ids.length !== 1))" title="update" @click="change_mode('update')">
                   <font-awesome-icon icon="fa-solid fa-pen-to-square" />
                 </button>
 
-                <button type="button" class="btn btn-danger mx-1" :disabled="cannot_switch_to_delete" title="delete"
-                  @click="change_mode('delete')">
+                <button type="button" class="btn btn-danger mx-1"
+                  :disabled="((mode === 'delete') || (ids.length === 0))" title="delete" @click="change_mode('delete')">
                   <font-awesome-icon icon="fa-solid fa-trash" />
                 </button>
               </div>
@@ -44,7 +44,7 @@
         <div class="modal-body">
           <div class="container-fluid">
 
-            <div class="d-flex gap-3" v-for="(column, j_key) in column_keys" :key="j_key">
+            <div class="d-flex gap-3" v-for="(column, j_key) in columns" :key="j_key">
               <div class="col">
                 <p class="text-end fw-bold">{{ column }}</p>
               </div>
@@ -59,6 +59,7 @@
                   v-model="form[column]">
                 <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column] }}</p>
 
+                <!-- TODO not showing this -->
                 <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column] }}</p>
 
               </div>
@@ -68,6 +69,7 @@
         </div>
 
         <div class="modal-footer">
+
           <button type="button" class="btn btn-primary" v-if="mode === 'create'" :disabled="cannot_save"
             @click="db_create">Save</button>
           <button type="button" class="btn btn-primary" v-if="mode === 'update'" :disabled="cannot_save"
@@ -75,6 +77,7 @@
 
           <!-- TODO two stage delete -->
           <button type="button" class="btn btn-primary" v-if="mode === 'delete'" @click="db_delete">Save</button>
+
         </div>
 
       </div>
@@ -86,35 +89,30 @@
 <script>
 import { Modal } from 'bootstrap';
 
+import DatabaseWorker from '@/components/DatabaseWorker'
+
 export default {
   name: 'DatabaseModal',
   props: {
-    db_name: String,
-    coll_name: String,
+    database_connection: DatabaseWorker.DatabaseConnection,
     mode: String,
     ids: Array,
-    column_keys: Array,
+    columns: Array,
   },
   emits: [
-    'cb_change_mode',
-    'cb_show',
+    'cb_set_mode',
   ],
   data() {
     return {
-      db_rows: [],
       the_modal: null,
 
+      db_rows: [],
+
       // form
-      form: {
-        name: '',
-        age: '',
-      },
+      form: {},
     };
   },
   computed: {
-    uri_query() {
-      return `db=${this.db_name}&coll=${this.coll_name}`;
-    },
     get_filter() {
       // use while read & update & delete
 
@@ -129,45 +127,21 @@ export default {
 
       const item = {};
 
-      if (this.form['name'] !== '') {
-        item.name = this.form['name'];
+      if (this.form.name && this.form.name !== '') {
+        item.name = this.form.name;
       }
 
-      if (this.form['age'] !== '') {
-        item.age = this.form['age'];
+      if (this.form.age && this.form.age !== '') {
+        item.age = this.form.age;
       }
 
       return item;
-    },
-    cannot_switch_to_create() {
-      // for create button
-      var cannot = this.mode === 'create';
-
-      return cannot;
-    },
-    cannot_switch_to_read() {
-      // for read button
-      var cannot = ((this.ids.length !== 1) || (this.mode === 'read'));
-
-      return cannot;
-    },
-    cannot_switch_to_update() {
-      // for update button
-      var cannot = ((this.ids.length !== 1) || (this.mode === 'update'));
-
-      return cannot;
-    },
-    cannot_switch_to_delete() {
-      // for delete button
-      var cannot = ((this.ids.length === 0) || (this.mode === 'delete'));
-
-      return cannot;
     },
     cannot_save() {
       // for create & update
       var cannot = false;
 
-      if ((this.form['name'] === '') && (this.form['age'] === '')) {
+      if ((!this.form.name || this.form.name === '') && (!this.form.age || this.form.age === '')) {
         cannot = true;
       }
 
@@ -175,114 +149,90 @@ export default {
     }
   },
   methods: {
-    change_mode(c_mode) {
-      this.form['name'] = '';
-      this.form['age'] = '';
-
-      this.$emit("cb_change_mode", c_mode);
+    clear_form() {
+      this.form = {
+        'name': null,
+        'age': null,
+      };
+    },
+    change_mode(mode) {
+      this.clear_form();
+      this.$emit("cb_set_mode", mode);
     },
     open() {
       this.the_modal.show();
     },
     close() {
       this.the_modal.hide();
-      this.$emit("cb_show");
+
+      this.clear_form();
+      this.$emit("cb_set_mode", null);
     },
     db_create() {
       try {
-        const url = `http://localhost:3000/db/create?${this.uri_query}`;
-        const c_body = this.get_item;
+        const body = this.get_item;
+        this.database_connection.create(body);
 
-        fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(c_body),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
+        this.close();
       } catch (error) {
         console.log(error);
-      } finally {
-        this.close();
       }
     },
     async db_read() {
       try {
-        const url = `http://localhost:3000/db/read?${this.uri_query}`;
-        const c_body = this.get_filter;
-
-        const res = await (await fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(c_body),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })).json();
+        const body = this.get_filter;
+        const res = await this.database_connection.read(body);
 
         this.db_rows = res.message;
-        if (this.db_rows.length >= 1) {
+
+        if (this.db_rows.length === 1) {
           this.db_rows = this.db_rows[0];
         }
-        else if (this.db_rows.length < 1) {
-          throw Error('read from id error');
+        else if (this.db_rows.length > 1) {
+          throw Error('read from id error | too much');
         }
+        else if (this.db_rows.length < 1) {
+          throw Error('read from id error | too less');
+        }
+
       } catch (error) {
         console.log(error);
       }
     },
     db_update() {
       try {
-        const url = `http://localhost:3000/db/update?${this.uri_query}`;
-        const c_body = Object.assign({}, this.get_filter, { 'item': this.get_item });
+        const body = Object.assign({}, this.get_filter, { 'item': this.get_item });
+        this.database_connection.update(body);
 
-        fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(c_body),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
+        this.close();
       } catch (error) {
         console.log(error);
-      } finally {
-        this.close();
       }
     },
     db_delete() {
       try {
-        const url = `http://localhost:3000/db/delete?${this.uri_query}`;
-        const c_body = this.get_filter;
+        const body = this.get_filter;
+        this.database_connection.delete(body);
 
-        fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(c_body),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
+        this.close();
       } catch (error) {
         console.log(error);
-      } finally {
-        this.close();
       }
     },
   },
   mounted() {
     // given Modal config temporarily fix reopen problem
-    this.the_modal = new Modal(this.$refs.db_model, {
+    this.the_modal = new Modal(this.$refs.db_modal, {
       backdrop: 'static',
       keyboard: false,
     });
     this.open();
 
-    this.db_read();
+    this.clear_form();
+
+    if (this.mode !== 'create') {
+      this.db_read();
+    }
   },
 }
 </script>

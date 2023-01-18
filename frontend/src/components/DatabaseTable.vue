@@ -2,14 +2,14 @@
   <div>
 
     <p>{{ msg }}</p>
+    <p>{{ ids }}</p>
 
-    <p>{{ checked }}</p>
   </div>
 
-  <Teleport to="body" v-if="modal_show">
+  <Teleport to="body" v-if="mode">
 
-    <DatabaseModal :db_name="db_name" :coll_name="coll_name" :mode="mode" :ids="checked" :column_keys="column_keys"
-      @cb_show="no_show" @cb_change_mode="change_mode" />
+    <DatabaseModal :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns"
+      @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -40,22 +40,22 @@
 
       <div>
 
-        <button type="button" class="btn btn-success mx-1" title="create" @click="show('create')">
+        <button type="button" class="btn btn-success mx-1" title="create" @click="set_mode('create')">
           <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
 
-        <button type="button" class="btn btn-primary mx-1" :disabled="checked.length !== 1" title="read"
-          @click="show('read')">
+        <button type="button" class="btn btn-primary mx-1" :disabled="ids.length !== 1" title="read"
+          @click="set_mode('read')">
           <font-awesome-icon icon="fa-solid fa-eye" />
         </button>
 
-        <button type="button" class="btn btn-warning mx-1" :disabled="checked.length !== 1" title="update"
-          @click="show('update')">
+        <button type="button" class="btn btn-warning mx-1" :disabled="ids.length !== 1" title="update"
+          @click="set_mode('update')">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" />
         </button>
 
-        <button type="button" class="btn btn-danger mx-1" :disabled="checked.length === 0" title="delete"
-          @click="show('delete')">
+        <button type="button" class="btn btn-danger mx-1" :disabled="ids.length === 0" title="delete"
+          @click="set_mode('delete')">
           <font-awesome-icon icon="fa-solid fa-trash" />
         </button>
 
@@ -86,15 +86,15 @@
             </thead>
 
             <tbody>
-              <tr v-for="(row, i_key) in get_sorted_rows" :key="i_key">
+              <tr v-for="(row, i_key) in db_rows" :key="i_key">
 
                 <td>
                   <div>
-                    <input type="checkbox" :value="row['_id']" v-model="checked">
+                    <input type="checkbox" :value="row['_id']" v-model="ids">
                   </div>
                 </td>
 
-                <td v-for="(column, j_key) in column_keys" :key="j_key">
+                <td v-for="(column, j_key) in columns" :key="j_key">
                   {{ row[column] }}
                 </td>
 
@@ -112,14 +112,15 @@
 </template>
 
 <script>
-import DatabaseModal from './DatabaseModal.vue'
+import DatabaseModal from '@/components/DatabaseModal.vue'
+
+import DatabaseWorker from '@/components/DatabaseWorker'
 
 export default {
   name: 'DatabaseTable',
   props: {
     msg: String,
-    db_name: String,
-    coll_name: String,
+    database_connection: DatabaseWorker.DatabaseConnection,
     columns: Array,
   },
   components: {
@@ -127,96 +128,45 @@ export default {
   },
   data() {
     return {
-      rt: '',
-      mode: '',
-      checked: [],
-
-      // form
-      form_name: '',
-      form_age: '',
+      mode: null,
+      ids: [],
 
       // database
-      db_columns: [],
       db_rows: [],
-
-      // modal
-      modal_show: false,
     }
   },
   computed: {
-    uri_query() {
-      return `db=${this.db_name}&coll=${this.coll_name}`;
-    },
-    input_item() {
-      const item = {};
-
-      if (this.form_name != '') {
-        item.name = this.form_name;
+    show() {
+      if (!this.mode) {
+        return true;
       }
 
-      if (this.form_age != '') {
-        item.age = this.form_age;
+      return false;
+    },
+  },
+  watch: {
+    mode() {
+      if (!this.mode) {
+        // close modal, clear all selected ids
+        // and rerender the page (reread the database)
+
+        this.ids = [];
+        this.db_read();
+      } else if (this.mode == 'create') {
+        // change to create mode, clear all selected ids
+
+        this.ids = [];
       }
-
-      return item;
-    },
-    column_keys() {
-      // return Object.keys(this.columns);
-      // const remove_col = 'checkbox';
-      var c_column_keys = Object.values(this.columns);
-
-      // c_column_keys = c_column_keys.filter((item) => {
-      //   return item !== remove_col;
-      // });
-
-      return c_column_keys;
-    },
-    get_sorted_rows() {
-      // TODO sort
-      return this.db_rows;
     },
   },
   methods: {
-    form_clear() {
-      this.form_name = '';
-      this.form_age = '';
-    },
-    selection_clear() {
-      if (this.mode == 'create') {
-        // clear current checked item(s)
-        this.checked = [];
-      }
-    },
-    show(c_mode) {
-      this.modal_show = true;
-      this.mode = c_mode;
-
-      this.selection_clear();
-    },
-    no_show() {
-      this.modal_show = false;
-      this.mode = '';
-      this.checked = [];
-
-      this.db_read();
-    },
-    change_mode(c_mode) {
-      this.mode = c_mode;
-
-      this.selection_clear();
+    set_mode(mode) {
+      this.mode = mode;
     },
     async db_read() {
       try {
-        const url = `http://localhost:3000/db/read?${this.uri_query}`;
-        const item = this.input_item;
-        const res = await (await fetch(url, {
-          method: 'POST',
-          mode: 'cors',
-          body: JSON.stringify(item),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })).json();
+        const body = {};
+        const res = await this.database_connection.read(body);
 
         this.db_rows = res.message;
       } catch (error) {
