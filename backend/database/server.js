@@ -17,10 +17,10 @@ async function db_create(db_name, cool_name, item) {
         const collection = database.collection(cool_name);
 
         result = await collection.insertOne(item);
+        c_client.close();
     } catch (error) {
         console.log(error);
     } finally {
-        await c_client.close();
         return result;
     }
 };
@@ -34,10 +34,10 @@ async function db_read(db_name, cool_name, item) {
         const collection = database.collection(cool_name);
 
         result = await collection.find(item).toArray();
+        c_client.close();
     } catch (error) {
         console.log(error);
     } finally {
-        await c_client.close();
         return result;
     }
 };
@@ -51,10 +51,10 @@ async function db_update(db_name, cool_name, id, item) {
         const collection = database.collection(cool_name);
 
         result = await collection.findOneAndUpdate({ _id: id }, item);
+        c_client.close();
     } catch (error) {
         console.log(error);
     } finally {
-        await c_client.close();
         return result;
     }
 };
@@ -68,10 +68,10 @@ async function db_delete(db_name, cool_name, id) {
         const collection = database.collection(cool_name);
 
         result = await collection.findOneAndDelete({ _id: id });
+        c_client.close();
     } catch (error) {
         console.log(error);
     } finally {
-        await c_client.close();
         return result;
     }
 };

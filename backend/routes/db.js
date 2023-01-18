@@ -14,7 +14,9 @@ router.get('/', async function (req, res, next) {
 
 router.post('/create', async function (req, res, next) {
     console.log(req.body);
-    db_server.db_create(req.query.db, req.query.coll, req.body);
+
+    const rt_message = await db_server.db_create(req.query.db, req.query.coll, req.body);
+    res.json({ 'message': rt_message });
 });
 
 router.post('/read', async function (req, res, next) {
@@ -24,8 +26,8 @@ router.post('/read', async function (req, res, next) {
         req.body._id = get_object_id(req.body._id[0]);
     }
 
-    var db_rt_message = await db_server.db_read(req.query.db, req.query.coll, req.body);
-    res.json({ 'message': db_rt_message });
+    const rt_message = await db_server.db_read(req.query.db, req.query.coll, req.body);
+    res.json({ 'message': rt_message });
 });
 
 router.post('/update', async function (req, res, next) {
@@ -33,7 +35,9 @@ router.post('/update', async function (req, res, next) {
 
     const c_id = get_object_id(req.body._id[0]);
     const c_item = { $set: req.body.item };
-    db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
+
+    const rt_message = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
+    res.json({ 'message': rt_message });
 });
 
 router.post('/delete', async function (req, res, next) {
@@ -46,6 +50,8 @@ router.post('/delete', async function (req, res, next) {
 
         db_server.db_delete(req.query.db, req.query.coll, c_id);
     });
+
+    res.json({ 'message': '' });
 });
 
 module.exports = router;
