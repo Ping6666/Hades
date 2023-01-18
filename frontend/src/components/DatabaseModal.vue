@@ -54,9 +54,9 @@
               <div class="col">
 
                 <input v-if="mode === 'create'" type="text" class="form-control" :placeholder="column"
-                  v-model="form[column]">
+                  v-model.trim="form[column]">
                 <input v-else-if="mode === 'update'" type="text" class="form-control" :placeholder="db_rows[column]"
-                  v-model="form[column]">
+                  v-model.trim="form[column]">
                 <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column] }}</p>
 
                 <!-- TODO not showing this -->
@@ -127,11 +127,11 @@ export default {
 
       const item = {};
 
-      if (this.form.name && this.form.name !== '') {
+      if (this.form.name) {
         item.name = this.form.name;
       }
 
-      if (this.form.age && this.form.age !== '') {
+      if (this.form.age) {
         item.age = this.form.age;
       }
 
@@ -141,7 +141,7 @@ export default {
       // for create & update
       var cannot = false;
 
-      if ((!this.form.name || this.form.name === '') && (!this.form.age || this.form.age === '')) {
+      if (!this.form.name && !this.form.age) {
         cannot = true;
       }
 

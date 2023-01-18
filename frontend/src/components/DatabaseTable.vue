@@ -136,13 +136,6 @@ export default {
     }
   },
   computed: {
-    show() {
-      if (!this.mode) {
-        return true;
-      }
-
-      return false;
-    },
   },
   watch: {
     mode() {
