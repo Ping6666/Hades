@@ -1,7 +1,7 @@
 <template>
   <p>Hades Equipment</p>
 
-  <DatabaseTable msg="DatabaseTable" :database_connection="database_connection" :columns="columns" />
+  <DatabaseTable msg="DatabaseTable" :database_connection="database_connection" :database_struct="database_struct" />
 </template>
 
 <script>
@@ -17,12 +17,18 @@ export default {
   data() {
     return {
       database_connection: new DatabaseWorker.DatabaseConnection('localhost', '3000', 'Hi', 'AA'),
-      columns: [
-        new DatabaseWorker.StructEquipment('name', true, true),
-        new DatabaseWorker.StructEquipment('age', true, true),
-        new DatabaseWorker.StructEquipment('create_date', false, true),
-        new DatabaseWorker.StructEquipment('edit_date', false, true),
-      ],
+      database_struct: new DatabaseWorker.DatabaseStruct(
+        [
+          new DatabaseWorker.StructBase('search mode', 'or', ['and', 'or']),
+          new DatabaseWorker.StructBase('display limit', 10, [10, 25, 50, 100]),
+        ],
+        [
+          new DatabaseWorker.StructEquipment('name', true, true),
+          new DatabaseWorker.StructEquipment('age', true, true),
+          new DatabaseWorker.StructEquipment('create_date', false, true, true, false, false),
+          new DatabaseWorker.StructEquipment('edit_date', false, true, true, false, false),
+        ]
+      ),
     }
   },
 }

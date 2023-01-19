@@ -45,7 +45,7 @@
         <div class="modal-body">
           <div class="container-fluid">
 
-            <div class="d-flex gap-3" v-for="(column, j_key) in columns" :key="j_key">
+            <div class="d-flex gap-3" v-for="(column, j_key) in database_struct.columns" :key="j_key">
               <div class="col">
                 <p class="text-end fw-bold">{{ column.col_name.value }}</p>
               </div>
@@ -137,7 +137,7 @@ export default {
     database_connection: DatabaseWorker.DatabaseConnection,
     mode: String,
     ids: Array,
-    columns: Array,
+    database_struct: Object,
   },
   emits: [
     'cb_set_mode',

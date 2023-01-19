@@ -12,10 +12,13 @@
   <Teleport to="body" v-if="mode">
 
     <ModalCRUD v-if="((mode === 'create') || (mode === 'read') || (mode === 'update') || (mode === 'delete'))"
-      :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns" @cb_set_mode="set_mode" />
+      :database_connection="database_connection" :mode="mode" :ids="ids" :database_struct="database_struct"
+      @cb_set_mode="set_mode" />
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
-    <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
-    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :columns="columns" @cb_set_mode="set_mode" />
+    <ModalSetting v-else-if="mode === 'setting'" :mode="mode" :database_struct="database_struct"
+      @cb_set_mode="set_mode" />
+    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :database_struct="database_struct"
+      @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -82,7 +85,7 @@
                 <th>
                 </th>
 
-                <th v-for="(column, key) in columns" :key="key">
+                <th v-for="(column, key) in database_struct.columns" :key="key">
                   {{ column.col_name.value }}
                 </th>
 
@@ -98,7 +101,7 @@
                   </div>
                 </td>
 
-                <td v-for="(column, j_key) in columns" :key="j_key">
+                <td v-for="(column, j_key) in database_struct.columns" :key="j_key">
                   {{ row[column.col_name.value] }}
                 </td>
 
@@ -128,7 +131,7 @@ export default {
   props: {
     msg: String,
     database_connection: DatabaseWorker.DatabaseConnection,
-    columns: Array,
+    database_struct: Object,
   },
   components: {
     ModalCRUD,
@@ -143,9 +146,54 @@ export default {
 
       // database
       db_rows: [],
+
+      // search
+      search_mode: null,
     }
   },
   computed: {
+    get_filter() {
+      const search = [];
+
+      for (let i = 0; i < this.database_struct.columns.length; i++) {
+        const c_column = this.database_struct.columns[i];
+
+        if (c_column.search_string.value) {
+          const c_col = c_column.col_name.value;
+          const c_search = c_column.search_string.value;
+
+          const c_regex = {};
+
+          if (c_column.fuzzy_search.value) {
+            // activate fuzzy search
+
+            c_regex[`${c_col}`] = {
+              "$regex": c_search,
+              "$options": 'simx',
+            };
+          } else {
+            // deactivate fuzzy search (aka. exact search)
+
+            c_regex[`${c_col}`] = c_search;
+          }
+
+          search.push(c_regex);
+        }
+      }
+
+      if (search.length === 0) {
+        return {};
+      }
+
+      if (this.search_mode === 'and') {
+        return { "$and": search };
+      } else if (this.search_mode === 'or') {
+        return { "$or": search };
+      }
+
+      // otherwise
+      return {};
+    },
   },
   watch: {
     mode() {
@@ -154,6 +202,7 @@ export default {
         // and rerender the page (reread the database)
 
         this.ids = [];
+        this.get_search_mode();
         this.db_read();
       } else if (this.mode == 'create') {
         // change to create mode, clear all selected ids
@@ -166,9 +215,25 @@ export default {
     set_mode(mode) {
       this.mode = mode;
     },
+    get_search_mode() {
+      var c_search_mode = null;
+
+      for (let i = 0; i < this.database_struct.controls.length; i++) {
+        const c_control = this.database_struct.controls[i];
+
+        if (c_control.op_name.value === 'search mode') {
+          c_search_mode = c_control.op_value.value;
+          break;
+        }
+      }
+
+      if (c_search_mode) {
+        this.search_mode = c_search_mode;
+      }
+    },
     async db_read() {
       try {
-        const body = {};
+        const body = this.get_filter;
         const res = await this.database_connection.read(body);
 
         this.db_rows = res.message;

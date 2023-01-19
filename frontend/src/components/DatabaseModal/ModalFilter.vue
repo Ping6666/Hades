@@ -2,7 +2,7 @@
 
   <div class="modal fade" ref="modal_filter" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -20,24 +20,24 @@
 
             <div class="table-responsive">
 
-              <table v-if="columns.length > 0" class="table table-hover">
+              <table v-if="database_struct.columns.length > 0" class="table table-hover">
 
                 <thead>
                   <tr>
 
-                    <th v-for="(attr, key) in columns[0].attr_names" :key="key">
-                      {{ columns[0][`${attr}`].name }}
+                    <th v-for="(attr, key) in database_struct.columns[0].attr_names" :key="key">
+                      {{ database_struct.columns[0][`${attr}`].name }}
                     </th>
 
                   </tr>
                 </thead>
 
                 <tbody>
-                  <tr v-for="(column, i_key) in columns" :key="i_key">
+                  <tr v-for="(column, i_key) in database_struct.columns" :key="i_key">
 
                     <td v-for="(attr, j_key) in column.attr_names" :key="j_key">
 
-                      <div v-if="column[`${attr}`].type === 'checkbox_switch'" class="form-check form-switch">
+                      <div v-if="column[`${attr}`].type === 'form_checkbox_switch'" class="form-check form-switch">
 
                         <input class="form-check-input" type="checkbox" role="switch"
                           :disabled="!column[`${attr}`].editable" :checked="column[`${attr}`].value"
@@ -81,7 +81,7 @@ export default {
   name: 'ModalFilter',
   props: {
     mode: String,
-    columns: Array,
+    database_struct: Object,
   },
   emits: [
     'cb_set_mode',

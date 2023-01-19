@@ -1,4 +1,5 @@
 class DatabaseConnection {
+
     constructor(backend_ip, backend_port, db_name, coll_name) {
         this.backend_ip = backend_ip;
         this.backend_port = backend_port;
@@ -61,9 +62,33 @@ class DatabaseConnection {
     }
 }
 
+class StructBase {
+
+    constructor(op_name, op_value, ops) {
+        this.op_name = {
+            name: 'name',
+            value: op_name,
+            type: 'string',
+        };
+
+        this.op_value = {
+            name: 'value',
+            value: op_value,
+            type: 'form_select',// options
+        };
+
+        this.ops = ops; // array
+
+        this.attr_names = [
+            'op_name',
+            'op_value',
+        ];
+    }
+}
+
 class StructEquipment {
 
-    constructor(col_name, editable, sortable, showable = true, fuzzy_search = false, search_string = null) {
+    constructor(col_name, editable, sortable, showable = true, fuzzy_search = true, searchable = true) {
         this.col_name = {
             name: 'column name',
             value: col_name,
@@ -75,34 +100,34 @@ class StructEquipment {
             name: 'editable',
             value: editable,
             editable: false,
-            type: 'checkbox_switch', // boolean
+            type: 'form_checkbox_switch', // boolean
         };
 
         this.sortable = {
             name: 'sortable',
             value: sortable,
             editable: false,
-            type: 'checkbox_switch',// boolean
+            type: 'form_checkbox_switch',// boolean
         };
 
         this.showable = {
             name: 'showable',
             value: showable,
             editable: true,
-            type: 'checkbox_switch',// boolean
+            type: 'form_checkbox_switch',// boolean
         };
 
         this.fuzzy_search = {
             name: 'fuzzy search',
             value: fuzzy_search,
-            editable: true,
-            type: 'checkbox_switch',// boolean
+            editable: searchable,
+            type: 'form_checkbox_switch',// boolean
         };
 
         this.search_string = {
             name: 'search string',
-            value: search_string,
-            editable: true,
+            value: null,
+            editable: searchable,
             type: 'string',
         };
 
@@ -129,10 +154,19 @@ class StructEquipment {
     check_editable() {
         return this.editable.value;
     }
+}
 
+class DatabaseStruct {
+
+    constructor(controls, columns) {
+        this.controls = controls;
+        this.columns = columns;
+    }
 }
 
 export default {
     DatabaseConnection,
+    DatabaseStruct,
+    StructBase,
     StructEquipment,
 };
