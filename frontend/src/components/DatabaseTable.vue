@@ -15,7 +15,7 @@
       :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns" @cb_set_mode="set_mode" />
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
-    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :columns="columns" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -85,7 +85,7 @@
                 </th>
 
                 <th v-for="(column, key) in columns" :key="key">
-                  {{ column.col_name }}
+                  {{ column.col_name.value }}
                 </th>
 
               </tr>
@@ -101,7 +101,7 @@
                 </td>
 
                 <td v-for="(column, j_key) in columns" :key="j_key">
-                  {{ row[column.col_name] }}
+                  {{ row[column.col_name.value] }}
                 </td>
 
               </tr>

@@ -19,12 +19,6 @@
           Setting page
         </div>
 
-        <div class="modal-footer">
-
-          <button type="button" class="btn btn-primary" @click="close">Save</button>
-
-        </div>
-
       </div>
     </div>
 

@@ -47,7 +47,7 @@
 
             <div class="d-flex gap-3" v-for="(column, j_key) in columns" :key="j_key">
               <div class="col">
-                <p class="text-end fw-bold">{{ column.col_name }}</p>
+                <p class="text-end fw-bold">{{ column.col_name.value }}</p>
               </div>
 
               <div class="vr"></div>
@@ -55,21 +55,21 @@
               <div class="col">
 
                 <div v-if="mode === 'create'">
-                  <input v-if="column.editable" type="text" class="form-control" :placeholder="column.col_name"
-                    v-model.trim="form[column.col_name]">
-                  <p v-else>{{ column.col_name }} will auto generate.</p>
+                  <input v-if="column.editable.value" type="text" class="form-control"
+                    :placeholder="column.col_name.value" v-model.trim="form[column.col_name.value]">
+                  <p v-else>{{ column.col_name.value }} will auto generate.</p>
                 </div>
 
                 <div v-else-if="mode === 'update'">
-                  <input v-if="column.editable" type="text" class="form-control" :placeholder="db_rows[column.col_name]"
-                    v-model.trim="form[column.col_name]">
-                  <p v-else>{{ db_rows[column.col_name] }}</p>
+                  <input v-if="column.editable.value" type="text" class="form-control"
+                    :placeholder="db_rows[column.col_name.value]" v-model.trim="form[column.col_name.value]">
+                  <p v-else>{{ db_rows[column.col_name.value] }}</p>
                 </div>
 
-                <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column.col_name] }}</p>
+                <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column.col_name.value] }}</p>
 
                 <!-- TODO not showing this -->
-                <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column.col_name] }}</p>
+                <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column.col_name.value] }}</p>
 
               </div>
             </div>

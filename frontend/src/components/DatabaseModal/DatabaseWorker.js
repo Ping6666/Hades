@@ -63,24 +63,57 @@ class DatabaseConnection {
 
 class StructEquipment {
 
-    /*
-    col_name: String // should be const
-    editable: Boolean // should be const
-    sortable: Boolean // should be const
+    constructor(col_name, editable, sortable, showable = true, fuzzy_search = false, search_string = null) {
+        this.col_name = {
+            name: 'column name',
+            value: col_name,
+            editable: false,
+            type: 'string',
+        };
 
-    showable: Boolean
-    filter_mode: Number
-    filter_str: String
-    */
+        this.editable = {
+            name: 'editable',
+            value: editable,
+            editable: false,
+            type: 'checkbox_switch', // boolean
+        };
 
-    constructor(col_name, editable, sortable, showable = true, filter_mode = 0, filter_str = null) {
-        this.col_name = col_name;
-        this.editable = editable;
-        this.sortable = sortable;
+        this.sortable = {
+            name: 'sortable',
+            value: sortable,
+            editable: false,
+            type: 'checkbox_switch',// boolean
+        };
 
-        this.showable = showable;
-        this.filter_mode = filter_mode;
-        this.filter_str = filter_str;
+        this.showable = {
+            name: 'showable',
+            value: showable,
+            editable: true,
+            type: 'checkbox_switch',// boolean
+        };
+
+        this.fuzzy_search = {
+            name: 'fuzzy search',
+            value: fuzzy_search,
+            editable: true,
+            type: 'checkbox_switch',// boolean
+        };
+
+        this.search_string = {
+            name: 'search string',
+            value: search_string,
+            editable: true,
+            type: 'string',
+        };
+
+        this.attr_names = [
+            'col_name',
+            'editable',
+            'sortable',
+            'showable',
+            'fuzzy_search',
+            'search_string',
+        ];
     }
 
     // setter
@@ -88,13 +121,13 @@ class StructEquipment {
     // getter
 
     get_col_name() {
-        return this.col_name;
+        return this.col_name.value;
     }
 
     // checker
 
     check_editable() {
-        return this.editable;
+        return this.editable.value;
     }
 
 }

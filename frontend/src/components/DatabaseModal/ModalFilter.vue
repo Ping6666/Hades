@@ -16,13 +16,55 @@
         </div>
 
         <div class="modal-body">
-          Filter page
-        </div>
+          <div class="container-fluid">
 
-        <div class="modal-footer">
+            <div class="table-responsive">
 
-          <button type="button" class="btn btn-primary" @click="close">Save</button>
+              <table v-if="columns.length > 0" class="table table-hover">
 
+                <thead>
+                  <tr>
+
+                    <th v-for="(attr, key) in columns[0].attr_names" :key="key">
+                      {{ columns[0][`${attr}`].name }}
+                    </th>
+
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr v-for="(column, i_key) in columns" :key="i_key">
+
+                    <td v-for="(attr, j_key) in column.attr_names" :key="j_key">
+
+                      <div v-if="column[`${attr}`].type === 'checkbox_switch'" class="form-check form-switch">
+
+                        <input class="form-check-input" type="checkbox" role="switch"
+                          :disabled="!column[`${attr}`].editable" :checked="column[`${attr}`].value"
+                          v-model="column[`${attr}`].value">
+
+                      </div>
+                      <div v-else>
+
+                        <input v-if="column[`${attr}`].editable" class="form-control" type="text"
+                          :placeholder="column[`${attr}`].value" v-model.trim="column[`${attr}`].value">
+                        <p v-else>{{ column[`${attr}`].value }}</p>
+
+                      </div>
+
+                      <!-- TODO not showing this -->
+                      <p>{{ column[`${attr}`].value }}</p>
+
+                    </td>
+
+                  </tr>
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
         </div>
 
       </div>
@@ -39,6 +81,7 @@ export default {
   name: 'ModalFilter',
   props: {
     mode: String,
+    columns: Array,
   },
   emits: [
     'cb_set_mode',
@@ -67,3 +110,11 @@ export default {
   },
 }
 </script>
+
+<style>
+.my_table {
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+}
+</style>
