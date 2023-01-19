@@ -36,8 +36,6 @@
           <font-awesome-icon icon="fa-solid fa-filter" />
         </button>
 
-        <input class="mx-1" type="text" placeholder="global search">
-
         <button type="button" class="btn btn-success  mx-1" title="refresh" @click="db_read">
           <font-awesome-icon icon="fa-solid fa-arrows-rotate" />
         </button>
