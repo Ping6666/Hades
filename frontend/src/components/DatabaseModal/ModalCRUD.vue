@@ -116,16 +116,15 @@
 
   </div>
 
-
 </template>
 
 <script>
 import { Modal } from 'bootstrap';
 
-import DatabaseWorker from '@/components/DatabaseWorker'
+import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
 
 export default {
-  name: 'DatabaseModal',
+  name: 'ModalCRUD',
   props: {
     database_connection: DatabaseWorker.DatabaseConnection,
     mode: String,

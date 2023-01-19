@@ -2,14 +2,17 @@
   <div>
 
     <p>{{ msg }}</p>
+
+    <!-- TODO not showing this -->
+    <p>{{ mode }}</p>
     <p>{{ ids }}</p>
 
   </div>
 
   <Teleport to="body" v-if="mode">
 
-    <DatabaseModal :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns"
-      @cb_set_mode="set_mode" />
+    <ModalCRUD v-if="((mode === 'create') || (mode === 'read') || (mode === 'update') || (mode === 'delete'))"
+      :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -112,9 +115,9 @@
 </template>
 
 <script>
-import DatabaseModal from '@/components/DatabaseModal.vue'
+import ModalCRUD from '@/components/DatabaseModal/ModalCRUD.vue'
 
-import DatabaseWorker from '@/components/DatabaseWorker'
+import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
 
 export default {
   name: 'DatabaseTable',
@@ -124,7 +127,7 @@ export default {
     columns: Array,
   },
   components: {
-    DatabaseModal,
+    ModalCRUD,
   },
   data() {
     return {
