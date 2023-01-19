@@ -15,7 +15,11 @@ router.get('/', async function (req, res, next) {
 router.post('/create', async function (req, res, next) {
     console.log(req.body);
 
-    const rt_message = await db_server.db_create(req.query.db, req.query.coll, req.body);
+    const c_item = req.body;
+    c_item.create_date = new Date();
+    c_item.edit_date = new Date();
+
+    const rt_message = await db_server.db_create(req.query.db, req.query.coll, c_item);
     res.json({ 'message': rt_message });
 });
 
@@ -34,7 +38,11 @@ router.post('/update', async function (req, res, next) {
     console.log(req.body);
 
     const c_id = get_object_id(req.body._id[0]);
-    const c_item = { $set: req.body.item };
+
+    const c_content = req.body.item;
+    c_content.edit_date = new Date();
+
+    const c_item = { $set: c_content };
 
     const rt_message = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
     res.json({ 'message': rt_message });
