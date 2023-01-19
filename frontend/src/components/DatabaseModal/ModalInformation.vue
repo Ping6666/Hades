@@ -2,7 +2,7 @@
 
   <div class="modal fade" ref="modal_information" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -20,9 +20,6 @@
         </div>
 
         <div class="modal-footer">
-
-          <button type="button" class="btn btn-primary" @click="close">Save</button>
-
         </div>
 
       </div>

@@ -2,7 +2,7 @@
 
   <div class="modal fade" ref="modal_crud" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -95,7 +95,7 @@
 
   <div class="modal fade" ref="modal_two_stage_deletion" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
       <div class="modal-content">
 
         <div class="modal-header">
