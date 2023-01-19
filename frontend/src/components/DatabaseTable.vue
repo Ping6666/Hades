@@ -13,6 +13,9 @@
 
     <ModalCRUD v-if="((mode === 'create') || (mode === 'read') || (mode === 'update') || (mode === 'delete'))"
       :database_connection="database_connection" :mode="mode" :ids="ids" :columns="columns" @cb_set_mode="set_mode" />
+    <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -21,15 +24,15 @@
 
       <div>
 
-        <button type="button" class="btn btn-info mx-1" title="information">
+        <button type="button" class="btn btn-info mx-1" title="information" @click="set_mode('information')">
           <font-awesome-icon icon="fa-solid fa-circle-info" />
         </button>
 
-        <button type="button" class="btn btn-secondary mx-1" title="setting">
+        <button type="button" class="btn btn-secondary mx-1" title="setting" @click="set_mode('setting')">
           <font-awesome-icon icon="fa-solid fa-gear" />
         </button>
 
-        <button type="button" class="btn btn-secondary mx-1" title="filter">
+        <button type="button" class="btn btn-secondary mx-1" title="filter" @click="set_mode('filter')">
           <font-awesome-icon icon="fa-solid fa-filter" />
         </button>
 
@@ -116,6 +119,9 @@
 
 <script>
 import ModalCRUD from '@/components/DatabaseModal/ModalCRUD.vue'
+import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
+import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
+import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
 
 import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
 
@@ -128,6 +134,9 @@ export default {
   },
   components: {
     ModalCRUD,
+    ModalInformation,
+    ModalSetting,
+    ModalFilter,
   },
   data() {
     return {

@@ -1,6 +1,6 @@
 <template>
 
-  <div class="modal fade" ref="db_modal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" ref="modal_crud" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
@@ -85,7 +85,7 @@
 
   </div>
 
-  <div class="modal fade" ref="two_stage_deletion" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" ref="modal_two_stage_deletion" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
@@ -262,11 +262,11 @@ export default {
   },
   mounted() {
     // given Modal config temporarily fix reopen problem
-    this.the_modal = new Modal(this.$refs.db_modal, {
+    this.the_modal = new Modal(this.$refs.modal_crud, {
       backdrop: 'static',
       keyboard: false,
     });
-    this.the_modal_deletion = new Modal(this.$refs.two_stage_deletion, {
+    this.the_modal_deletion = new Modal(this.$refs.modal_two_stage_deletion, {
       backdrop: 'static',
       keyboard: false,
     });
