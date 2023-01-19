@@ -47,21 +47,29 @@
 
             <div class="d-flex gap-3" v-for="(column, j_key) in columns" :key="j_key">
               <div class="col">
-                <p class="text-end fw-bold">{{ column }}</p>
+                <p class="text-end fw-bold">{{ column.col_name }}</p>
               </div>
 
               <div class="vr"></div>
 
               <div class="col">
 
-                <input v-if="mode === 'create'" type="text" class="form-control" :placeholder="column"
-                  v-model.trim="form[column]">
-                <input v-else-if="mode === 'update'" type="text" class="form-control" :placeholder="db_rows[column]"
-                  v-model.trim="form[column]">
-                <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column] }}</p>
+                <div v-if="mode === 'create'">
+                  <input v-if="column.editable" type="text" class="form-control" :placeholder="column.col_name"
+                    v-model.trim="form[column.col_name]">
+                  <p v-else>{{ column.col_name }} will auto generate.</p>
+                </div>
+
+                <div v-else-if="mode === 'update'">
+                  <input v-if="column.editable" type="text" class="form-control" :placeholder="db_rows[column.col_name]"
+                    v-model.trim="form[column.col_name]">
+                  <p v-else>{{ db_rows[column.col_name] }}</p>
+                </div>
+
+                <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column.col_name] }}</p>
 
                 <!-- TODO not showing this -->
-                <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column] }}</p>
+                <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column.col_name] }}</p>
 
               </div>
             </div>
@@ -175,6 +183,10 @@ export default {
       var cannot = false;
 
       if (!this.form.name && !this.form.age) {
+        cannot = true;
+      } else if (this.form.name === this.db_rows.name) {
+        cannot = true;
+      } else if (this.form.age === this.db_rows.age) {
         cannot = true;
       }
 

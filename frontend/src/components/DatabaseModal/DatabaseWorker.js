@@ -62,112 +62,44 @@ class DatabaseConnection {
 }
 
 class StructEquipment {
-    constructor() {
-        this.name = null;
-        this.age = null;
+
+    /*
+    col_name: String // should be const
+    editable: Boolean // should be const
+    sortable: Boolean // should be const
+
+    showable: Boolean
+    filter_mode: Number
+    filter_str: String
+    */
+
+    constructor(col_name, editable, sortable, showable = true, filter_mode = 0, filter_str = null) {
+        this.col_name = col_name;
+        this.editable = editable;
+        this.sortable = sortable;
+
+        this.showable = showable;
+        this.filter_mode = filter_mode;
+        this.filter_str = filter_str;
     }
 
     // setter
 
     // getter
 
-    get_json() {
-        const res = {};
-
-        if (this.name) {
-            res.name = this.name;
-        }
-
-        if (this.age) {
-            res.age = this.age;
-        }
-
-        return res;
+    get_col_name() {
+        return this.col_name;
     }
 
     // checker
 
-    check_valid() {
-        if (this.name && this.age) {
-            return true;
-        }
-
-        return false;
-    }
-}
-
-class DatabaseMode {
-    constructor() {
-        this.mode = null;
-
-        this.ids = [];
-        this.item = new StructEquipment();
+    check_editable() {
+        return this.editable;
     }
 
-    destructor() {
-        console.log(`${this.name} destructor`);
-    }
-
-    // setter
-
-    set_mode(mode) {
-        this.mode = mode;
-
-        if (!mode || mode === 'create') {
-            // clear current checked item(s)
-
-            this.ids = [];
-        }
-    }
-
-    // getter
-
-    get_filter() {
-        // use while read & update & delete
-
-        const filter = {
-            '_id': this.ids,
-        };
-
-        return filter;
-    }
-
-    get_item() {
-        // use while create & update
-        return this.item.get_json();
-    }
-
-    // checker
-
-    check_cannot_switch(to) {
-        if (to === 'create') {
-            // do nothing
-        } else if (to === 'read' && this.ids.length !== 1) {
-            return true;
-        } else if (to === 'update' && this.ids.length !== 1) {
-            return true;
-        } else if (to === 'delete' && this.ids.length === 0) {
-            return true;
-        }
-
-        return false;
-    }
-
-    check_modal_cannot_switch(to) {
-        if (this.mode && this.mode === to) {
-            return true;
-        }
-
-        return this.check_cannot_switch(to);
-    }
-
-    check_cannot_save() {
-        // for create & update
-        return this.item.check_valid();
-    }
 }
 
 export default {
     DatabaseConnection,
-    DatabaseMode,
+    StructEquipment,
 };

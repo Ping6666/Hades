@@ -18,8 +18,10 @@ export default {
     return {
       database_connection: new DatabaseWorker.DatabaseConnection('localhost', '3000', 'Hi', 'AA'),
       columns: [
-        'name',
-        'age',
+        new DatabaseWorker.StructEquipment('name', true, true),
+        new DatabaseWorker.StructEquipment('age', true, true),
+        new DatabaseWorker.StructEquipment('create_date', false, true),
+        new DatabaseWorker.StructEquipment('edit_date', false, true),
       ],
     }
   },

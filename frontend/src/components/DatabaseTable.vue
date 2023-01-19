@@ -84,8 +84,8 @@
                 <th>
                 </th>
 
-                <th v-for="(value, key) in columns" :key="key">
-                  {{ value }}
+                <th v-for="(column, key) in columns" :key="key">
+                  {{ column.col_name }}
                 </th>
 
               </tr>
@@ -101,7 +101,7 @@
                 </td>
 
                 <td v-for="(column, j_key) in columns" :key="j_key">
-                  {{ row[column] }}
+                  {{ row[column.col_name] }}
                 </td>
 
               </tr>
