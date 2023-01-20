@@ -1,6 +1,5 @@
 var createError = require('http-errors');
 var express = require('express');
-var cors = require('cors');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
@@ -12,7 +11,10 @@ var db_router = require('./routes/db');
 
 var app = express();
 
-// // cors
+/*
+  cors: using nginx to fix this problem
+*/
+// var cors = require('cors');
 // const cors_options = {
 //   origin: [
 //     'http://localhost:8080',
@@ -22,7 +24,7 @@ var app = express();
 //   allowedHeaders: ['Content-Type', 'Authorization'],
 // };
 // app.use(cors(cors_options));
-app.use(cors());
+// app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
