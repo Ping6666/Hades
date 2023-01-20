@@ -53,8 +53,8 @@
           <ul class="navbar-nav ms-auto">
 
             <li class="nav-item">
-              <a class="nav-link disabled">
-                <router-link style="text-decoration: none; color: inherit;" to="#">
+              <a class="nav-link">
+                <router-link style="text-decoration: none; color: inherit;" to="/account">
                   Account
                 </router-link>
               </a>
