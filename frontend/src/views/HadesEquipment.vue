@@ -16,7 +16,7 @@ export default {
   },
   data() {
     return {
-      database_connection: new DatabaseWorker.DatabaseConnection('localhost', '3000', 'Hi', 'AA'),
+      database_connection: new DatabaseWorker.DatabaseConnection('Hi', 'AA'),
       database_struct: new DatabaseWorker.DatabaseStruct(
         [
           new DatabaseWorker.StructBase('search mode', 'or', ['and', 'or']),

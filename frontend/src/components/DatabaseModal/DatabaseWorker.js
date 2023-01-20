@@ -1,8 +1,6 @@
 class DatabaseConnection {
 
-    constructor(backend_ip, backend_port, db_name, coll_name) {
-        this.backend_ip = backend_ip;
-        this.backend_port = backend_port;
+    constructor(db_name, coll_name) {
         this.db_name = db_name;
         this.coll_name = coll_name;
 
@@ -16,7 +14,10 @@ class DatabaseConnection {
     // setter
 
     set_uri() {
-        this.uri_path = `http://${this.backend_ip}:${this.backend_port}/db`;
+        // nginx will do the work
+        this.uri_path = `${window.location.protocol}//${window.location.host}/api/db`;
+
+        // use query to access the mongodb
         this.uri_query = `db=${this.db_name}&coll=${this.coll_name}`;
     }
 

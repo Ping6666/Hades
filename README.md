@@ -36,6 +36,16 @@ bash run.sh
 ### .env
 
 ```
+## nginx ##
+# only nginx inside the docker (but frontend & backend are not)
+UPSTREAM_FRONTEND_IP=${UPSTREAM_FRONTEND_IP}
+UPSTREAM_BACKEND_IP=${UPSTREAM_BACKEND_IP}
+
+# both inside the docker
+# UPSTREAM_FRONTEND_IP=${UPSTREAM_FRONTEND_IP}
+# UPSTREAM_BACKEND_IP=${UPSTREAM_BACKEND_IP}
+
+## mongo ##
 MONGO_USERNAME=${MONGO_USERNAME}
 MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
