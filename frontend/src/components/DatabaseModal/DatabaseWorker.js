@@ -15,7 +15,7 @@ class DatabaseConnection {
 
     set_uri() {
         // nginx will do the work
-        this.uri_path = `${window.location.protocol}//${window.location.host}/api/db`;
+        this.uri_path = `${window.location.protocol}//${window.location.host}/api/db/op`;
 
         // use query to access the mongodb
         this.uri_query = `db=${this.db_name}&coll=${this.coll_name}`;

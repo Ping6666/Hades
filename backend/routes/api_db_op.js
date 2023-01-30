@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var object_id = require('mongodb').ObjectId;
-var db_server = require('../database/server')
+var db_server = require('../database/server');
 
 var get_object_id = (c_id) => {
     return new object_id(c_id);
@@ -19,8 +19,8 @@ router.post('/create', async function (req, res, next) {
     c_item.create_date = new Date();
     c_item.edit_date = new Date();
 
-    const rt_message = await db_server.db_create(req.query.db, req.query.coll, c_item);
-    res.json({ 'message': rt_message });
+    const db_res = await db_server.db_create(req.query.db, req.query.coll, c_item);
+    res.json({ 'message': db_res });
 });
 
 router.post('/read', async function (req, res, next) {
@@ -30,8 +30,8 @@ router.post('/read', async function (req, res, next) {
         req.body._id = get_object_id(req.body._id[0]);
     }
 
-    const rt_message = await db_server.db_read(req.query.db, req.query.coll, req.body);
-    res.json({ 'message': rt_message });
+    const db_res = await db_server.db_read(req.query.db, req.query.coll, req.body);
+    res.json({ 'message': db_res });
 });
 
 router.post('/update', async function (req, res, next) {
@@ -44,8 +44,8 @@ router.post('/update', async function (req, res, next) {
 
     const c_item = { $set: c_content };
 
-    const rt_message = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
-    res.json({ 'message': rt_message });
+    const db_res = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
+    res.json({ 'message': db_res });
 });
 
 router.post('/delete', async function (req, res, next) {
