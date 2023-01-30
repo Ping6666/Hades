@@ -85,7 +85,7 @@
                 <th>
                 </th>
 
-                <th v-for="(column, key) in database_struct.columns" :key="key">
+                <th v-for="(column, key) in get_show_columns" :key="key">
                   {{ column.col_name.value }}
                 </th>
 
@@ -101,7 +101,7 @@
                   </div>
                 </td>
 
-                <td v-for="(column, j_key) in database_struct.columns" :key="j_key">
+                <td v-for="(column, j_key) in get_show_columns" :key="j_key">
                   {{ row[column.col_name.value] }}
                 </td>
 
@@ -193,6 +193,18 @@ export default {
 
       // otherwise
       return {};
+    },
+    get_show_columns() {
+      const showable_columns = [];
+
+      for (let i = 0; i < this.database_struct.columns.length; i++) {
+        const c_column = this.database_struct.columns[i];
+        if (c_column.showable.value) {
+          showable_columns.push(c_column);
+        }
+      }
+
+      return showable_columns;
     },
   },
   watch: {
