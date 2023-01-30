@@ -80,6 +80,11 @@
         <p>{{ submit_str }}</p>
     </div>
 
+    <div>
+        <button type="button" class="btn btn-primary btn-block" @click="token_test">Token test</button>
+        <p>{{ token_test_result }}</p>
+    </div>
+
 </template>
 
 <script>
@@ -88,13 +93,21 @@ export default {
     data() {
         return {
             submit_str: null,
+            token: null,
+            token_test_result: '',
 
             // check_sign_up
+            res_valid_username: false,
             username: null,
             password: null,
             repeat_password: null,
             checkbox_term: null,
             sign_up_error: '',
+        }
+    },
+    watch: {
+        username() {
+            this.valid_username();
         }
     },
     computed: {
@@ -107,9 +120,21 @@ export default {
                 return true;
             }
 
-            if (!this.password || !this.repeat_password || (this.password.length < 8) || (this.password !== this.repeat_password)) {
+            if (!this.res_valid_username) {
+                // username has been used
+                this.set_sign_up_error('Username has been used.');
+                return true;
+            }
+
+            if (!this.password || !this.repeat_password || (this.password.length < 8)) {
                 // password check fail
                 this.set_sign_up_error('Password check fail.');
+                return true;
+            }
+
+            if (this.password !== this.repeat_password) {
+                // password and repeat password should be the same
+                this.set_sign_up_error('Password and repeat password should be the same.');
                 return true;
             }
 
@@ -127,13 +152,83 @@ export default {
         set_sign_up_error(c_str) {
             this.sign_up_error = c_str;
         },
-        submit_sign_in() {
+        async submit_sign_in() {
             this.submit_str = 'Hi_sign_in';
-            return;
+            const url = `${window.location.protocol}//${window.location.host}/api/auth/signin`;
+            const body = {
+                'username': this.username,
+                'password': this.password,
+            };
+
+            const res = await (await fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })).json();
+
+            this.token = res.token;
+
+            // TODO jump to content page
         },
-        submit_sign_up() {
+        async valid_username() {
+            const url = `${window.location.protocol}//${window.location.host}/api/auth/valid_username`;
+            const body = {
+                'username': this.username,
+            };
+
+            const res = await (await fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })).json();
+
+            this.res_valid_username = res.message;
+        },
+        async submit_sign_up() {
             this.submit_str = 'Hi_sign_up';
-            return;
+            const url = `${window.location.protocol}//${window.location.host}/api/auth/signup`;
+            const body = {
+                'username': this.username,
+                'password': this.password,
+                'repeat_password': this.repeat_password,
+                'checkbox_term': this.checkbox_term,
+            };
+
+            const res = await (await fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })).json();
+
+            this.token = res.token;
+
+            // TODO jump to content page
+        },
+        async token_test() {
+            const url = `${window.location.protocol}//${window.location.host}/api/auth/token_test`;
+            const body = {
+                'token': this.token,
+            };
+
+            const res = await (await fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(body),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })).json();
+
+            this.token_test_result = res;
         },
     },
 }
