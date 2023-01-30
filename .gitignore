@@ -7,7 +7,6 @@ node_modules
 database/*
 
 ## backend
-backend/database/config.js
 
 ## frontend
 frontend/.DS_Store

@@ -42,7 +42,7 @@ sudo docker compose up -d
 ## config files
 
 - `.env`
-- `backend/database/config.js`
+- `backend/.env`
 
 ### development
 
@@ -60,15 +60,20 @@ MONGO_USERNAME=${MONGO_USERNAME}
 MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
 
-#### `backend/database/config.js`
+#### `backend/.env`
 
 ```
-module.exports = {
-    USERNAME: `${MONGO_USERNAME}`,
-    PASSWORD: `${MONGO_PASSWORD}`,
-    HOST: '127.0.0.1',
-    PORT: 27017,
-};
+## backend ##
+
+# jwt
+JWT_SECRET=${JWT_SECRET}
+
+# mongodb
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+
+MONGO_HOST=127.0.0.1
+MONGO_PORT=27017
 ```
 
 ### production
@@ -87,13 +92,18 @@ MONGO_USERNAME=${MONGO_USERNAME}
 MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
 
-#### `backend/database/config.js`
+#### `backend/.env`
 
 ```
-module.exports = {
-    USERNAME: `${MONGO_USERNAME}`,
-    PASSWORD: `${MONGO_PASSWORD}`,
-    HOST: 'mongo',
-    PORT: 27017,
-};
+## backend ##
+
+# jwt
+JWT_SECRET=${JWT_SECRET}
+
+# mongodb
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+
+MONGO_HOST=mongo
+MONGO_PORT=27017
 ```
