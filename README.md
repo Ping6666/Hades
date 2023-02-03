@@ -65,7 +65,10 @@ MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
 ## backend ##
 
-# jwt
+# express-session
+SESSION_SECRET=${SESSION_SECRET}
+
+# jsonwebtoken
 JWT_SECRET=${JWT_SECRET}
 
 # mongodb
@@ -97,7 +100,10 @@ MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
 ## backend ##
 
-# jwt
+# express-session
+SESSION_SECRET=${SESSION_SECRET}
+
+# jsonwebtoken
 JWT_SECRET=${JWT_SECRET}
 
 # mongodb
