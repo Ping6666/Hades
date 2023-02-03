@@ -1,9 +1,12 @@
 const { MongoClient } = require('mongodb');
 
-var config = require('./config');
+const USERNAME = process.env.MONGO_USERNAME;
+const PASSWORD = process.env.MONGO_PASSWORD;
+const HOST = process.env.MONGO_HOST;
+const PORT = process.env.MONGO_PORT;
 
-const uri = `mongodb://${config.HOST}:${config.PORT}`
-const auth_uri = `mongodb://${config.USERNAME}:${config.PASSWORD}@${config.HOST}:${config.PORT}`
+const uri = `mongodb://${HOST}:${PORT}`;
+const auth_uri = `mongodb://${USERNAME}:${PASSWORD}@${HOST}:${PORT}`;
 
 const client = new MongoClient(uri);
 const auth_client = new MongoClient(auth_uri);

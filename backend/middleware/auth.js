@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const db_server = require('../database/server');
-var config = require('./config');
+const db_server = require('../core/db_server');
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const db_name = 'Users';
 const coll_name = 'user';
@@ -14,7 +15,7 @@ const jwt_sign = function (id) {
         {
             id: id
         },
-        config.JWT_SECRET,
+        JWT_SECRET,
         {
             expiresIn: '1m', // 2h
         }
@@ -25,7 +26,7 @@ const jwt_verify = async function (req, res, next) {
     const token = req.body.token;
 
     if (token) {
-        jwt.verify(token, config.JWT_SECRET, function (err, decoded) {
+        jwt.verify(token, JWT_SECRET, function (err, decoded) {
             if (err) {
                 return res.status(401).send({ log: 'Unauthorized | invalid token.' });
             } else {
