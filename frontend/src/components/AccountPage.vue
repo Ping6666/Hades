@@ -77,12 +77,10 @@
         <p>{{ password }}</p>
         <p>{{ repeat_password }}</p>
         <p>{{ checkbox_term }}</p>
-        <p>{{ submit_str }}</p>
     </div>
 
     <div>
-        <button type="button" class="btn btn-primary btn-block" @click="token_test">Token test</button>
-        <p>{{ token_test_result }}</p>
+        <button type="button" class="btn btn-primary btn-block" @click="sign_out">Sign out</button>
     </div>
 
 </template>
@@ -92,10 +90,6 @@ export default {
     name: 'AccountPage',
     data() {
         return {
-            submit_str: null,
-            token: null,
-            token_test_result: '',
-
             // check_sign_up
             res_valid_username: false,
             username: null,
@@ -152,24 +146,21 @@ export default {
         set_sign_up_error(c_str) {
             this.sign_up_error = c_str;
         },
-        async submit_sign_in() {
-            this.submit_str = 'Hi_sign_in';
+        submit_sign_in() {
             const url = `${window.location.protocol}//${window.location.host}/api/auth/signin`;
             const body = {
                 'username': this.username,
                 'password': this.password,
             };
 
-            const res = await (await fetch(url, {
+            fetch(url, {
                 method: 'POST',
                 mode: 'cors',
                 body: JSON.stringify(body),
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            })).json();
-
-            this.token = res.token;
+            });
 
             // TODO jump to content page
         },
@@ -190,8 +181,7 @@ export default {
 
             this.res_valid_username = res.message;
         },
-        async submit_sign_up() {
-            this.submit_str = 'Hi_sign_up';
+        submit_sign_up() {
             const url = `${window.location.protocol}//${window.location.host}/api/auth/signup`;
             const body = {
                 'username': this.username,
@@ -200,35 +190,29 @@ export default {
                 'checkbox_term': this.checkbox_term,
             };
 
-            const res = await (await fetch(url, {
+            fetch(url, {
                 method: 'POST',
                 mode: 'cors',
                 body: JSON.stringify(body),
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            })).json();
-
-            this.token = res.token;
+            });
 
             // TODO jump to content page
         },
-        async token_test() {
-            const url = `${window.location.protocol}//${window.location.host}/api/auth/token_test`;
-            const body = {
-                'token': this.token,
-            };
+        sign_out() {
+            const url = `${window.location.protocol}//${window.location.host}/api/auth/signout`;
+            const body = {};
 
-            const res = await (await fetch(url, {
+            fetch(url, {
                 method: 'POST',
-                mode: 'cors',
+                mode: 'no-cors',
                 body: JSON.stringify(body),
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            })).json();
-
-            this.token_test_result = res;
+            });
         },
     },
 }

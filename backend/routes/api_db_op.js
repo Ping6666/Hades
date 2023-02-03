@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var object_id = require('mongodb').ObjectId;
-var db_server = require('../database/server');
+var db_server = require('../core/db_server');
 
 var get_object_id = (c_id) => {
     return new object_id(c_id);
