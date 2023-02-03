@@ -17,55 +17,9 @@
         <div class="tab-content">
 
             <div class="tab-pane fade show active" id="pills-login" role="tabpanel">
-                <form class="col-6 mx-auto" @submit.prevent="submit_sign_in">
-
-                    <div class="form-outline mb-3">
-                        <input type="text" class="form-control" v-model="username" placeholder="Username" />
-                    </div>
-
-                    <div class="form-outline mb-3">
-                        <input type="password" class="form-control" v-model="password" placeholder="Password" />
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-
-                </form>
             </div>
 
             <div class="tab-pane fade" id="pills-register" role="tabpanel">
-                <form class="col-6 mx-auto" @submit.prevent="submit_sign_up">
-
-                    <div class="form-outline mb-3">
-                        <input type="text" class="form-control" v-model="username" placeholder="Username" />
-                    </div>
-
-                    <div class="form-outline mb-3">
-                        <input type="password" class="form-control" v-model="password" placeholder="Password" />
-                        <small class="form-text text-muted">8 characters minimum</small>
-                    </div>
-
-                    <div class="form-outline mb-3">
-                        <input type="password" class="form-control" v-model="repeat_password"
-                            placeholder="Repeat Password" />
-                    </div>
-
-                    <div class="form-check d-flex justify-content-center mb-3">
-
-                        <input class="form-check-input me-2" type="checkbox" v-model="checkbox_term" />
-
-                        <!-- TODO the term -->
-                        <label class="form-check-label">
-                            I have read and agree to the terms
-                        </label>
-
-                    </div>
-
-                    <div :title="sign_up_error">
-                        <button type="submit" class="btn btn-primary btn-block" :disabled="check_sign_up">Sign
-                            up</button>
-                    </div>
-
-                </form>
             </div>
 
         </div>

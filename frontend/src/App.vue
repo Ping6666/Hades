@@ -50,12 +50,47 @@
 
           </ul>
 
+        </div>
+
+        <div v-if="can_logout">
+
           <ul class="navbar-nav ms-auto">
 
             <li class="nav-item">
               <a class="nav-link">
                 <router-link style="text-decoration: none; color: inherit;" to="/account">
                   Account
+                </router-link>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link">
+                <router-link style="text-decoration: none; color: inherit;" to="/logout">
+                  <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
+                </router-link>
+              </a>
+            </li>
+
+          </ul>
+
+        </div>
+        <div v-else>
+
+          <ul class="navbar-nav ms-auto">
+
+            <li class="nav-item">
+              <a class="nav-link">
+                <router-link style="text-decoration: none; color: inherit;" to="/login">
+                  Login
+                </router-link>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link">
+                <router-link style="text-decoration: none; color: inherit;" to="/register">
+                  Register
                 </router-link>
               </a>
             </li>
@@ -69,11 +104,45 @@
   </div>
 
   <router-view />
+
+  <p>{{ can_logout }}</p>
+
 </template>
 
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      can_logout: null,
+    };
+  },
+  watch: {
+    $route: function(to, from) {
+      console.log(to);
+      console.log(from);
+
+      this.can_logout_check();
+    },
+  },
+  methods: {
+    async can_logout_check() {
+      const url = `${window.location.protocol}//${window.location.host}/api/auth/can_logout`;
+
+      const res = await (await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })).json();
+
+      this.can_logout = res.message;
+    },
+  },
+  mounted() {
+    this.can_logout_check();
+  },
 }
 </script>
 

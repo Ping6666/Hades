@@ -74,7 +74,7 @@ const username_check = async function (req, res, next) {
     next();
 };
 
-const signup_workhouse = async function (req, res, next) {
+const register_workhouse = async function (req, res, next) {
     if ((!req.body.username || !res.locals.valid_username) || (!req.body.password || !req.body.repeat_password || (req.body.password.length < 8)) ||
         (req.body.password !== req.body.repeat_password) || (!req.body.checkbox_term)) {
         /* frontend check */
@@ -82,7 +82,7 @@ const signup_workhouse = async function (req, res, next) {
         // password and repeat password should be the same
         // term check fail
 
-        return res.status(401).send({ log: ['Sign up fail! Frontend check fail.'] });
+        return res.status(401).send({ log: ['Register fail! Frontend check fail.'] });
     }
 
     const item = {
@@ -94,64 +94,64 @@ const signup_workhouse = async function (req, res, next) {
     res.locals.result = db_res.acknowledged;
 
     if (!res.locals.result) {
-        return res.status(401).send({ log: ['Sign up fail!'] });
+        return res.status(401).send({ log: ['Register fail!'] });
     }
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Sign up fail! Backend store error.'] });
+            return res.status(401).send({ log: ['Register fail! Backend store error.'] });
         }
 
         req.session._id = db_res.insertedId;
-        res.locals.signup_log = 'Sign up successful!';
+        res.locals.register_log = 'Register successful!';
 
         next();
     });
 };
 
-const signin_workhouse = async function (req, res, next) {
+const login_workhouse = async function (req, res, next) {
     const item = { 'username': req.body.username };
     const db_res = await db_server.db_read(db_name, coll_name, item);
 
     if (!db_res || db_res.length === 0) {
-        return res.status(401).send({ log: ['Sign in fail!'] });
+        return res.status(401).send({ log: ['Login fail!'] });
     } else if (db_res.length > 1) {
-        console.log('signin_check | duplicate user alert!');
+        console.log('login_check | duplicate user alert!');
 
-        return res.status(401).send({ log: ['Sign in fail! Backend server error, please contact the admin.'] });
+        return res.status(401).send({ log: ['Login fail! Backend server error, please contact the admin.'] });
     }
 
     const c_user = db_res[0];
     res.locals.result = await bcrypt.compare(req.body.password, c_user.password);
 
     if (!res.locals.result) {
-        return res.status(401).send({ log: ['Sign in fail!'] });
+        return res.status(401).send({ log: ['Login fail!'] });
     }
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Sign in fail! Backend store error.'] });
+            return res.status(401).send({ log: ['Login fail! Backend store error.'] });
         }
 
         req.session._id = c_user._id;
-        res.locals.signin_log = 'Sign in successful!';
+        res.locals.login_log = 'Login successful!';
 
         next();
     });
 };
 
-const signout_workhouse = function (req, res, next) {
+const logout_workhouse = function (req, res, next) {
     if (!res.locals.state_verify) {
-        res.locals.signout_log = 'Please Sign in first.';
+        res.locals.logout_log = 'Please Log in first.';
         return next();
     }
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Sign out fail! Backend store error.'] });
+            return res.status(401).send({ log: ['Logout fail! Backend store error.'] });
         }
 
-        res.locals.signout_log = 'Sign out successful!';
+        res.locals.logout_log = 'Logout successful!';
 
         next();
     });
@@ -160,9 +160,14 @@ const signout_workhouse = function (req, res, next) {
 const session_verify = function (req, res, next) {
     res.locals.state_verify = false;
 
+    console.log();
+    console.log('session_verify');
+    console.log(req.session);
+    console.log(req.sessionID);
+
     if (req.session._id) {
         /**
-         * if got _id in session means that it is a sign in user.
+         * if got _id in session means that it is a login user.
          */
 
         res.locals.state_verify = true;
@@ -173,9 +178,9 @@ const session_verify = function (req, res, next) {
 
 module.exports = {
     username_check,
-    signup_workhouse,
-    signin_workhouse,
-    signout_workhouse,
+    register_workhouse,
+    login_workhouse,
+    logout_workhouse,
     session_verify,
     jwt_verify,
 };
