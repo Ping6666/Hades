@@ -119,9 +119,6 @@ export default {
   },
   watch: {
     $route: function(to, from) {
-      console.log(to);
-      console.log(from);
-
       this.can_logout_check();
     },
   },

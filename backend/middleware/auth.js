@@ -35,9 +35,6 @@ const jwt_verify = async function (req, res, next) {
                 const time_diff = Date.now() - decoded.iat * 1000;
                 const time_total = (decoded.exp - decoded.iat) * 1000;
 
-                console.log(time_diff);
-                console.log(time_total);
-
                 if (time_diff >= time_total * 0.5) {
                     // TODO renew the token
                     console.log('renew the token');
@@ -159,11 +156,6 @@ const logout_workhouse = function (req, res, next) {
 
 const session_verify = function (req, res, next) {
     res.locals.state_verify = false;
-
-    console.log();
-    console.log('session_verify');
-    console.log(req.session);
-    console.log(req.sessionID);
 
     if (req.session._id) {
         /**
