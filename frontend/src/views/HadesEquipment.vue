@@ -7,7 +7,8 @@
 <script>
 import DatabaseTable from '@/components/DatabaseTable.vue'
 
-import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
+import DatabaseWorker from '@/javascript/DatabaseWorker'
+import ConnectionWorker from '@/javascript/ConnectionWorker'
 
 export default {
   name: 'HadesEquipment',
@@ -16,7 +17,7 @@ export default {
   },
   data() {
     return {
-      database_connection: new DatabaseWorker.DatabaseConnection('Hi', 'AA'),
+      database_connection: new ConnectionWorker.DatabaseConnection('Hi', 'AA'),
       database_struct: new DatabaseWorker.DatabaseStruct(
         [
           new DatabaseWorker.StructBase('search mode', 'or', ['and', 'or']),

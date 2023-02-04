@@ -129,12 +129,12 @@
 <script>
 import { Modal } from 'bootstrap';
 
-import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
+import ConnectionWorker from '@/javascript/ConnectionWorker'
 
 export default {
   name: 'ModalCRUD',
   props: {
-    database_connection: DatabaseWorker.DatabaseConnection,
+    database_connection: ConnectionWorker.DatabaseConnection,
     mode: String,
     ids: Array,
     database_struct: Object,

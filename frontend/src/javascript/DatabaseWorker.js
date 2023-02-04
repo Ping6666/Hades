@@ -1,68 +1,3 @@
-class DatabaseConnection {
-
-    constructor(db_name, coll_name) {
-        this.db_name = db_name;
-        this.coll_name = coll_name;
-
-        this.set_uri();
-    }
-
-    destructor() {
-        console.log(`${this.name} destructor`);
-    }
-
-    // setter
-
-    set_uri() {
-        // nginx will do the work
-        this.uri_path = `${window.location.protocol}//${window.location.host}/api/db/op`;
-
-        // use query to access the mongodb
-        this.uri_query = `db=${this.db_name}&coll=${this.coll_name}`;
-    }
-
-    // database op.
-
-    async create(body) {
-        // database create / insert
-        const url = `${this.uri_path}/create?${this.uri_query}`;
-        return await this._do_fetch(url, 'POST', body);
-    }
-
-    async read(body) {
-        // database read / find
-        const url = `${this.uri_path}/read?${this.uri_query}`;
-        return await this._do_fetch(url, 'POST', body);
-    }
-
-    async update(body) {
-        // database update
-        const url = `${this.uri_path}/update?${this.uri_query}`;
-        return await this._do_fetch(url, 'POST', body);
-    }
-
-    async delete(body) {
-        // database delete
-        const url = `${this.uri_path}/delete?${this.uri_query}`;
-        return await this._do_fetch(url, 'POST', body);
-    }
-
-    // workhouse
-
-    async _do_fetch(url, method, body) {
-        const res = await (await fetch(url, {
-            method: method,
-            mode: 'cors',
-            body: JSON.stringify(body),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })).json();
-
-        return res;
-    }
-}
-
 class StructBase {
 
     constructor(op_name, op_value, ops) {
@@ -166,7 +101,6 @@ class DatabaseStruct {
 }
 
 export default {
-    DatabaseConnection,
     DatabaseStruct,
     StructBase,
     StructEquipment,

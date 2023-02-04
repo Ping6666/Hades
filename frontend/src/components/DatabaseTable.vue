@@ -124,13 +124,13 @@ import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
 import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
 import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
 
-import DatabaseWorker from '@/components/DatabaseModal/DatabaseWorker'
+import ConnectionWorker from '@/javascript/ConnectionWorker'
 
 export default {
   name: 'DatabaseTable',
   props: {
     msg: String,
-    database_connection: DatabaseWorker.DatabaseConnection,
+    database_connection: ConnectionWorker.DatabaseConnection,
     database_struct: Object,
   },
   components: {
