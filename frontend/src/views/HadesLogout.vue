@@ -9,20 +9,17 @@ export default {
   name: 'HadesLogout',
   methods: {
     async logout() {
-      const url = `${window.location.protocol}//${window.location.host}/api/auth/logout`;
+      try {
+        const body = {};
+        await this.$store.state.auth_connection.logout(body);
 
-      await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      this.$router.push('/login');
+        this.$router.push('/login');
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
-  mounted(){
+  mounted() {
     this.logout();
   },
 }

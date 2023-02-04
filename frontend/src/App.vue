@@ -118,23 +118,20 @@ export default {
     };
   },
   watch: {
-    $route: function(to, from) {
+    $route: function (to, from) {
       this.can_logout_check();
     },
   },
   methods: {
     async can_logout_check() {
-      const url = `${window.location.protocol}//${window.location.host}/api/auth/can_logout`;
+      try {
+        const body = {};
+        const res = await this.$store.state.auth_connection.can_logout(body);
 
-      const res = await (await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })).json();
-
-      this.can_logout = res.message;
+        this.can_logout = res.message;
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
   mounted() {

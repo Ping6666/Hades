@@ -101,42 +101,32 @@ export default {
       this.register_error = c_str;
     },
     async valid_username() {
-      const url = `${window.location.protocol}//${window.location.host}/api/auth/valid_username`;
-      const body = {
-        'username': this.username,
-      };
+      try {
+        const body = {
+          'username': this.username,
+        };
+        const res = await this.$store.state.auth_connection.valid_username(body);
 
-      const res = await (await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })).json();
-
-      this.res_valid_username = res.message;
+        this.res_valid_username = res.message;
+      } catch (error) {
+        console.log(error);
+      }
     },
     async register() {
-      const url = `${window.location.protocol}//${window.location.host}/api/auth/register`;
-      const body = {
-        'username': this.username,
-        'password': this.password,
-        'repeat_password': this.repeat_password,
-        'checkbox_term': this.checkbox_term,
-      };
+      try {
+        const body = {
+          'username': this.username,
+          'password': this.password,
+          'repeat_password': this.repeat_password,
+          'checkbox_term': this.checkbox_term,
+        };
+        const res = await this.$store.state.auth_connection.register(body);
 
-      const res = await (await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })).json();
-
-      if (res.result) {
-        this.$router.push('/account')
+        if (res.result) {
+          this.$router.push('/account')
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
   },

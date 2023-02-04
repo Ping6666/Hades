@@ -30,23 +30,18 @@ export default {
   },
   methods: {
     async login() {
-      const url = `${window.location.protocol}//${window.location.host}/api/auth/login`;
-      const body = {
-        'username': this.username,
-        'password': this.password,
-      };
+      try {
+        const body = {
+          'username': this.username,
+          'password': this.password,
+        };
+        const res = await this.$store.state.auth_connection.login(body);
 
-      const res = await (await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        body: JSON.stringify(body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })).json();
-
-      if (res.result) {
-        this.$router.push('/account')
+        if (res.result) {
+          this.$router.push('/account')
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
   },
