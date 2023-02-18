@@ -53,7 +53,7 @@
                       </div>
 
                       <!-- TODO not showing this -->
-                      <p>{{ column[`${attr}`].value }}</p>
+                      <!-- <p>{{ column[`${attr}`].value }}</p> -->
 
                     </td>
 

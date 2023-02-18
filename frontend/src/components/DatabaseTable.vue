@@ -16,8 +16,7 @@
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalSetting v-else-if="mode === 'setting'" :mode="mode" :database_struct="database_struct"
       @cb_set_mode="set_mode" />
-    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :database_struct="database_struct"
-      @cb_set_mode="set_mode" />
+    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :database_struct="database_struct" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -101,7 +100,12 @@
                 </td>
 
                 <td v-for="(column, j_key) in get_show_columns" :key="j_key">
-                  {{ row[column.col_name.value] }}
+                  <div v-if="column.datatype.value === 'date'">
+                    {{ date_convert(row[column.col_name.value]) }}
+                  </div>
+                  <div v-else>
+                    {{ row[column.col_name.value] }}
+                  </div>
                 </td>
 
               </tr>
@@ -114,7 +118,6 @@
 
     </div>
   </div>
-
 </template>
 
 <script>
@@ -238,6 +241,22 @@ export default {
       if (c_search_mode) {
         this.search_mode = c_search_mode;
       }
+    },
+    date_convert(str) {
+      const c_date = new Date(str);
+
+      return c_date.toLocaleString('en', {
+        hour12: false,
+        // dateStyle: 'short',
+        // timeStyle: 'short',
+
+        weekday: 'short',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     },
     async db_read() {
       try {

@@ -24,7 +24,7 @@ class StructBase {
 
 class StructEquipment {
 
-    constructor(col_name, editable, sortable, showable = true, fuzzy_search = true, searchable = true) {
+    constructor(col_name, editable, sortable, datatype, showable = true, fuzzy_search = true, searchable = true) {
         this.col_name = {
             name: 'column name',
             value: col_name,
@@ -44,6 +44,13 @@ class StructEquipment {
             value: sortable,
             editable: false,
             type: 'form_checkbox_switch',// boolean
+        };
+
+        this.datatype = {
+            name: 'datatype',
+            value: datatype,
+            editable: false,
+            type: 'string',
         };
 
         this.showable = {
@@ -71,6 +78,7 @@ class StructEquipment {
             'col_name',
             'editable',
             'sortable',
+            'datatype',
             'showable',
             'fuzzy_search',
             'search_string',

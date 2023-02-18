@@ -22,10 +22,10 @@ export default {
           new DatabaseWorker.StructBase('display limit', 10, [10, 25, 50, 100]),
         ],
         [
-          new DatabaseWorker.StructEquipment('name', true, true),
-          new DatabaseWorker.StructEquipment('age', true, true),
-          new DatabaseWorker.StructEquipment('create_date', false, true, true, false, false),
-          new DatabaseWorker.StructEquipment('edit_date', false, true, true, false, false),
+          new DatabaseWorker.StructEquipment('name', true, true, 'string'),
+          new DatabaseWorker.StructEquipment('age', true, true, 'number'),
+          new DatabaseWorker.StructEquipment('create_date', false, true, 'date', true, false, false),
+          new DatabaseWorker.StructEquipment('edit_date', false, true, 'date', true, false, false),
         ]
       ),
     }
