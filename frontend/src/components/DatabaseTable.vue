@@ -12,8 +12,7 @@
   <Teleport to="body" v-if="mode">
 
     <ModalCRUD v-if="((mode === 'create') || (mode === 'read') || (mode === 'update') || (mode === 'delete'))"
-      :database_connection="database_connection" :mode="mode" :ids="ids" :database_struct="database_struct"
-      @cb_set_mode="set_mode" />
+      :mode="mode" :ids="ids" :database_struct="database_struct" @cb_set_mode="set_mode" />
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalSetting v-else-if="mode === 'setting'" :mode="mode" :database_struct="database_struct"
       @cb_set_mode="set_mode" />
@@ -124,13 +123,10 @@ import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
 import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
 import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
 
-import ConnectionWorker from '@/javascript/ConnectionWorker'
-
 export default {
   name: 'DatabaseTable',
   props: {
     msg: String,
-    database_connection: ConnectionWorker.DatabaseConnection,
     database_struct: Object,
   },
   components: {
@@ -246,7 +242,7 @@ export default {
     async db_read() {
       try {
         const body = this.get_filter;
-        const res = await this.database_connection.read(body);
+        const res = await this.$store.state.db_connection.read(body);
 
         this.db_rows = res.message;
       } catch (error) {

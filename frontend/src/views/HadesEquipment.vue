@@ -1,14 +1,13 @@
 <template>
   <p>Hades Equipment</p>
 
-  <DatabaseTable msg="DatabaseTable" :database_connection="database_connection" :database_struct="database_struct" />
+  <DatabaseTable msg="DatabaseTable" :database_struct="database_struct" />
 </template>
 
 <script>
 import DatabaseTable from '@/components/DatabaseTable.vue'
 
 import DatabaseWorker from '@/javascript/DatabaseWorker'
-import ConnectionWorker from '@/javascript/ConnectionWorker'
 
 export default {
   name: 'HadesEquipment',
@@ -17,7 +16,6 @@ export default {
   },
   data() {
     return {
-      database_connection: new ConnectionWorker.DatabaseConnection('Hi', 'AA'),
       database_struct: new DatabaseWorker.DatabaseStruct(
         [
           new DatabaseWorker.StructBase('search mode', 'or', ['and', 'or']),
@@ -31,6 +29,9 @@ export default {
         ]
       ),
     }
+  },
+  beforeMount() {
+    this.$store.state.db_connection.set_names('Hi', 'AA');
   },
 }
 </script>

@@ -129,12 +129,9 @@
 <script>
 import { Modal } from 'bootstrap';
 
-import ConnectionWorker from '@/javascript/ConnectionWorker'
-
 export default {
   name: 'ModalCRUD',
   props: {
-    database_connection: ConnectionWorker.DatabaseConnection,
     mode: String,
     ids: Array,
     database_struct: Object,
@@ -223,7 +220,7 @@ export default {
     db_create() {
       try {
         const body = this.get_item;
-        this.database_connection.create(body);
+        this.$store.state.db_connection.create(body);
 
         this.close_stage();
       } catch (error) {
@@ -233,7 +230,7 @@ export default {
     async db_read() {
       try {
         const body = this.get_filter;
-        const res = await this.database_connection.read(body);
+        const res = await this.$store.state.db_connection.read(body);
 
         this.db_rows = res.message;
 
@@ -254,7 +251,7 @@ export default {
     db_update() {
       try {
         const body = Object.assign({}, this.get_filter, { 'item': this.get_item });
-        this.database_connection.update(body);
+        this.$store.state.db_connection.update(body);
 
         this.close_stage();
       } catch (error) {
@@ -264,7 +261,7 @@ export default {
     db_delete() {
       try {
         const body = this.get_filter;
-        this.database_connection.delete(body);
+        this.$store.state.db_connection.delete(body);
 
         this.close_stage();
       } catch (error) {

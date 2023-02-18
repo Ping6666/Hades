@@ -1,14 +1,19 @@
 // workhouse
 
 const _do_fetch = async function (url, method, mode, body) {
-    const res = await (await fetch(url, {
+    const init = {
         method: method,
         mode: mode,
-        body: JSON.stringify(body),
         headers: {
             'Content-Type': 'application/json',
         },
-    })).json();
+    };
+
+    if (method === 'POST') {
+        init['body'] = JSON.stringify(body);
+    }
+
+    const res = await (await fetch(url, init)).json();
 
     return res;
 };
@@ -69,12 +74,10 @@ class AuthConnection {
 
 class DatabaseConnection {
 
-    constructor(db_name, coll_name) {
+    constructor() {
         this.api_path = 'api/db/op';
-        this.db_name = db_name;
-        this.coll_name = coll_name;
-
-        this.set_uri();
+        this.db_name = null;
+        this.coll_name = null;
     }
 
     destructor() {
@@ -82,6 +85,13 @@ class DatabaseConnection {
     }
 
     // setter
+
+    set_names(db_name, coll_name) {
+        this.db_name = db_name;
+        this.coll_name = coll_name;
+
+        this.set_uri();
+    }
 
     set_uri() {
         // nginx will do the work
