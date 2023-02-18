@@ -1,5 +1,4 @@
 <template>
-
   <div class="modal fade" ref="modal_crud" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -24,13 +23,13 @@
                   <font-awesome-icon icon="fa-solid fa-eye" />
                 </button>
 
-                <button type="button" class="btn btn-warning mx-1"
-                  :disabled="((mode === 'update') || (ids.length !== 1))" title="update" @click="change_mode('update')">
+                <button type="button" class="btn btn-warning mx-1" :disabled="((mode === 'update') || (ids.length !== 1))"
+                  title="update" @click="change_mode('update')">
                   <font-awesome-icon icon="fa-solid fa-pen-to-square" />
                 </button>
 
-                <button type="button" class="btn btn-danger mx-1"
-                  :disabled="((mode === 'delete') || (ids.length === 0))" title="delete" @click="change_mode('delete')">
+                <button type="button" class="btn btn-danger mx-1" :disabled="((mode === 'delete') || (ids.length === 0))"
+                  title="delete" @click="change_mode('delete')">
                   <font-awesome-icon icon="fa-solid fa-trash" />
                 </button>
               </div>
@@ -45,7 +44,7 @@
         <div class="modal-body">
           <div class="container-fluid">
 
-            <div class="d-flex gap-3" v-for="(column, j_key) in database_struct.columns" :key="j_key">
+            <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
               <div class="col">
                 <p class="text-end fw-bold">{{ column.col_name.value }}</p>
               </div>
@@ -123,7 +122,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script>
@@ -134,7 +132,6 @@ export default {
   props: {
     mode: String,
     ids: Array,
-    database_struct: Object,
   },
   emits: [
     'cb_set_mode',

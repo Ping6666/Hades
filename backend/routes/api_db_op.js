@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 
 var object_id = require('mongodb').ObjectId;
-var db_server = require('../core/db_server');
+const db_server = require('../core/db_server');
+const db_document = require('../core/db_document');
 
 const auth = require('../middleware/auth');
 
@@ -11,7 +12,15 @@ var get_object_id = (c_id) => {
 };
 
 router.get('/', async function (req, res, next) {
-    res.json({ 'message': 'this is db' });
+    const c_document = db_document.get_db_document(`${req.query.db}.${req.query.coll}`);
+
+    var c_columns = null;
+
+    if (c_document) {
+        c_columns = c_document['columns'];
+    }
+
+    res.json({ 'message': 'this is db', 'columns': c_columns });
 });
 
 router.post('/create', auth.session_verify, async function (req, res, next) {

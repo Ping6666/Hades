@@ -12,11 +12,10 @@
   <Teleport to="body" v-if="mode">
 
     <ModalCRUD v-if="((mode === 'create') || (mode === 'read') || (mode === 'update') || (mode === 'delete'))"
-      :mode="mode" :ids="ids" :database_struct="database_struct" @cb_set_mode="set_mode" />
+      :mode="mode" :ids="ids" @cb_set_mode="set_mode" />
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
-    <ModalSetting v-else-if="mode === 'setting'" :mode="mode" :database_struct="database_struct"
-      @cb_set_mode="set_mode" />
-    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" :database_struct="database_struct" @cb_set_mode="set_mode" />
+    <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalFilter v-else-if="mode === 'filter'" :mode="mode" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -130,7 +129,6 @@ export default {
   name: 'DatabaseTable',
   props: {
     msg: String,
-    database_struct: Object,
   },
   components: {
     ModalCRUD,
@@ -153,9 +151,10 @@ export default {
   computed: {
     get_filter() {
       const search = [];
+      const c_db_struct = this.$store.state.db_struct;
 
-      for (let i = 0; i < this.database_struct.columns.length; i++) {
-        const c_column = this.database_struct.columns[i];
+      for (let i = 0; i < c_db_struct.columns.length; i++) {
+        const c_column = c_db_struct.columns[i];
 
         if (c_column.search_string.value) {
           const c_col = c_column.col_name.value;
@@ -195,9 +194,10 @@ export default {
     },
     get_show_columns() {
       const showable_columns = [];
+      const c_db_struct = this.$store.state.db_struct;
 
-      for (let i = 0; i < this.database_struct.columns.length; i++) {
-        const c_column = this.database_struct.columns[i];
+      for (let i = 0; i < c_db_struct.columns.length; i++) {
+        const c_column = c_db_struct.columns[i];
         if (c_column.showable.value) {
           showable_columns.push(c_column);
         }
@@ -228,9 +228,10 @@ export default {
     },
     get_search_mode() {
       var c_search_mode = null;
+      const c_db_struct = this.$store.state.db_struct;
 
-      for (let i = 0; i < this.database_struct.controls.length; i++) {
-        const c_control = this.database_struct.controls[i];
+      for (let i = 0; i < c_db_struct.controls.length; i++) {
+        const c_control = c_db_struct.controls[i];
 
         if (c_control.op_name.value === 'search mode') {
           c_search_mode = c_control.op_value.value;

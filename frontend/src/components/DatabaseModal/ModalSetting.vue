@@ -1,5 +1,4 @@
 <template>
-
   <div class="modal fade" ref="modal_setting" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -18,7 +17,7 @@
         <div class="modal-body">
           <div class="container-fluid">
 
-            <div class="d-flex gap-3" v-for="(control, j_key) in database_struct.controls" :key="j_key">
+            <div class="d-flex gap-3" v-for="(control, j_key) in $store.state.db_struct.controls" :key="j_key">
               <div class="col">
                 <p class="text-end fw-bold">{{ control.op_name.value }}</p>
               </div>
@@ -50,7 +49,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script>
@@ -60,7 +58,6 @@ export default {
   name: 'ModalSetting',
   props: {
     mode: String,
-    database_struct: Object,
   },
   emits: [
     'cb_set_mode',

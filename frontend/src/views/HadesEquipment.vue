@@ -1,13 +1,11 @@
 <template>
   <p>Hades Equipment</p>
 
-  <DatabaseTable msg="DatabaseTable" :database_struct="database_struct" />
+  <DatabaseTable msg="DatabaseTable" />
 </template>
 
 <script>
 import DatabaseTable from '@/components/DatabaseTable.vue'
-
-import DatabaseWorker from '@/javascript/DatabaseWorker'
 
 export default {
   name: 'HadesEquipment',
@@ -16,22 +14,16 @@ export default {
   },
   data() {
     return {
-      database_struct: new DatabaseWorker.DatabaseStruct(
-        [
-          new DatabaseWorker.StructBase('search mode', 'or', ['and', 'or']),
-          new DatabaseWorker.StructBase('display limit', 10, [10, 25, 50, 100]),
-        ],
-        [
-          new DatabaseWorker.StructEquipment('name', true, true, 'string'),
-          new DatabaseWorker.StructEquipment('age', true, true, 'number'),
-          new DatabaseWorker.StructEquipment('create_date', false, true, 'date', true, false, false),
-          new DatabaseWorker.StructEquipment('edit_date', false, true, 'date', true, false, false),
-        ]
-      ),
     }
   },
-  beforeMount() {
+  async beforeMount() {
+    // TEST
     this.$store.state.db_connection.set_names('Hi', 'AA');
+    // this.$store.state.db_connection.set_names('db', 'equipment');
+
+    const c_columns = await this.$store.state.db_connection.columns();
+
+    this.$store.state.db_struct.set_columns(c_columns['columns']);
   },
 }
 </script>

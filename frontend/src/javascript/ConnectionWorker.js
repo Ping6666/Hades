@@ -103,6 +103,11 @@ class DatabaseConnection {
 
     // backend url -> database op.
 
+    async columns() {
+        const url = `${this.uri_path}?${this.uri_query}`;
+        return await _do_fetch(url, 'GET', 'no-cors');
+    }
+
     async create(body) {
         // database create / insert
         const url = `${this.uri_path}/create?${this.uri_query}`;

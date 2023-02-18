@@ -1,5 +1,4 @@
 <template>
-
   <div class="modal fade" ref="modal_filter" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
@@ -20,20 +19,20 @@
 
             <div class="table-responsive">
 
-              <table v-if="database_struct.columns.length > 0" class="table table-hover">
+              <table v-if="$store.state.db_struct.columns.length > 0" class="table table-hover">
 
                 <thead>
                   <tr>
 
-                    <th v-for="(attr, key) in database_struct.columns[0].attr_names" :key="key">
-                      {{ database_struct.columns[0][`${attr}`].name }}
+                    <th v-for="(attr, key) in $store.state.db_struct.columns[0].attr_names" :key="key">
+                      {{ $store.state.db_struct.columns[0][`${attr}`].name }}
                     </th>
 
                   </tr>
                 </thead>
 
                 <tbody>
-                  <tr v-for="(column, i_key) in database_struct.columns" :key="i_key">
+                  <tr v-for="(column, i_key) in $store.state.db_struct.columns" :key="i_key">
 
                     <td v-for="(attr, j_key) in column.attr_names" :key="j_key">
 
@@ -71,7 +70,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script>
@@ -81,7 +79,6 @@ export default {
   name: 'ModalFilter',
   props: {
     mode: String,
-    database_struct: Object,
   },
   emits: [
     'cb_set_mode',

@@ -106,6 +106,18 @@ class DatabaseStruct {
         this.controls = controls;
         this.columns = columns;
     }
+
+    set_columns(columns) {
+        this.columns = [];
+
+        for (let i = 0; i < columns.length; i++) {
+            const c_column = columns[i];
+
+            // TODO: consistency in name and sequence
+            this.columns.push(new StructEquipment(c_column['column_name'], c_column['editable'], true,
+                c_column['datatype'], true, true, c_column['searchable']));
+        }
+    }
 }
 
 export default {
