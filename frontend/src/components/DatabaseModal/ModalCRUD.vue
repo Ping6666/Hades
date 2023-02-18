@@ -59,13 +59,24 @@
                   <p v-else>{{ column.col_name.value }} will auto generate.</p>
                 </div>
 
-                <div v-else-if="mode === 'update'">
-                  <input v-if="column.editable.value" type="text" class="form-control"
-                    :placeholder="db_rows[column.col_name.value]" v-model.trim="form[column.col_name.value]">
-                  <p v-else>{{ db_rows[column.col_name.value] }}</p>
+                <div v-else-if="((mode === 'update') && (column.editable.value))">
+
+                  <input type="text" class="form-control" :placeholder="db_rows[column.col_name.value]"
+                    v-model.trim="form[column.col_name.value]">
+
                 </div>
 
-                <p v-else-if="((mode === 'read') || (mode === 'delete'))">{{ db_rows[column.col_name.value] }}</p>
+                <div v-else-if="((mode === 'read') || (mode === 'delete') ||
+                  ((mode === 'update') && (!column.editable.value)))">
+
+                  <p v-if="column.datatype.value === 'date'">
+                    {{ date_convert(db_rows[column.col_name.value]) }}
+                  </p>
+                  <p v-else>
+                    {{ db_rows[column.col_name.value] }}
+                  </p>
+
+                </div>
 
                 <!-- TODO not showing this -->
                 <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column.col_name.value] }}</p>
@@ -213,6 +224,22 @@ export default {
 
       this.clear_form();
       this.$emit("cb_set_mode", null);
+    },
+    date_convert(str) {
+      const c_date = new Date(str);
+
+      return c_date.toLocaleString('en', {
+        hour12: false,
+        // dateStyle: 'short',
+        // timeStyle: 'short',
+
+        weekday: 'short',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     },
     db_create() {
       try {
