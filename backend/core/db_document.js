@@ -34,18 +34,12 @@ const get_db_document = function (collection_name) {
     return db_document[collection_name];
 }
 
-/* TEST */
-
-db_document_new_collection('Hi.AA');
-
-db_document_add_column('Hi.AA', 'name', 'string', true, true);
-db_document_add_column('Hi.AA', 'age', 'number', true, true);
-db_document_add_column('Hi.AA', 'create_date', 'date', false, false);
-db_document_add_column('Hi.AA', 'edit_date', 'date', false, false);
-
 /* announcement */
 
 db_document_new_collection('db.announcement');
+
+db_document_add_column('db.announcement', 'create_date', 'date', false, false);
+db_document_add_column('db.announcement', 'edit_date', 'date', false, false);
 
 /* equipment */
 
@@ -60,9 +54,17 @@ db_document_add_column('db.equipment', 'edit_date', 'date', false, false);
 
 db_document_new_collection('db.property');
 
+db_document_add_column('db.property', 'create_date', 'date', false, false);
+db_document_add_column('db.property', 'edit_date', 'date', false, false);
+
 /* log */
 
 db_document_new_collection('db.log');
+
+db_document_add_column('db.log', 'create_date', 'date', false, false);
+db_document_add_column('db.log', 'edit_date', 'date', false, false);
+
+/* module.exports */
 
 module.exports = {
     get_db_document,

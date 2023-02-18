@@ -17,9 +17,7 @@ export default {
     }
   },
   async beforeMount() {
-    // TEST
-    this.$store.state.db_connection.set_names('Hi', 'AA');
-    // this.$store.state.db_connection.set_names('db', 'equipment');
+    this.$store.state.db_connection.set_names('db', 'equipment');
 
     const c_columns = await this.$store.state.db_connection.columns();
 
