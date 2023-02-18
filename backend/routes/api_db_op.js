@@ -4,6 +4,8 @@ var router = express.Router();
 var object_id = require('mongodb').ObjectId;
 var db_server = require('../core/db_server');
 
+const auth = require('../middleware/auth');
+
 var get_object_id = (c_id) => {
     return new object_id(c_id);
 };
@@ -12,7 +14,11 @@ router.get('/', async function (req, res, next) {
     res.json({ 'message': 'this is db' });
 });
 
-router.post('/create', async function (req, res, next) {
+router.post('/create', auth.session_verify, async function (req, res, next) {
+    if (!res.locals.state_verify) {
+        return res.status(404).send({ log: ['Please login first!'] });
+    }
+
     console.log(req.body);
 
     const c_item = req.body;
@@ -34,7 +40,11 @@ router.post('/read', async function (req, res, next) {
     res.json({ 'message': db_res });
 });
 
-router.post('/update', async function (req, res, next) {
+router.post('/update', auth.session_verify, async function (req, res, next) {
+    if (!res.locals.state_verify) {
+        return res.status(404).send({ log: ['Please login first!'] });
+    }
+
     console.log(req.body);
 
     const c_id = get_object_id(req.body._id[0]);
@@ -48,7 +58,11 @@ router.post('/update', async function (req, res, next) {
     res.json({ 'message': db_res });
 });
 
-router.post('/delete', async function (req, res, next) {
+router.post('/delete', auth.session_verify, async function (req, res, next) {
+    if (!res.locals.state_verify) {
+        return res.status(404).send({ log: ['Please login first!'] });
+    }
+
     console.log(req.body);
 
     const c_ids = req.body._id;

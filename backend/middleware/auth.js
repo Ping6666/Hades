@@ -28,7 +28,7 @@ const jwt_verify = async function (req, res, next) {
     if (token) {
         jwt.verify(token, JWT_SECRET, function (err, decoded) {
             if (err) {
-                return res.status(401).send({ log: ['Unauthorized | invalid token.'] });
+                return res.status(404).send({ log: ['Unauthorized | invalid token.'] });
             } else {
                 res.locals.decoded = decoded;
 
@@ -44,7 +44,7 @@ const jwt_verify = async function (req, res, next) {
             }
         });
     } else {
-        return res.status(403).send({ log: ['Forbidden | token required.'] });
+        return res.status(404).send({ log: ['Forbidden | token required.'] });
     }
 };
 
@@ -79,7 +79,7 @@ const register_workhouse = async function (req, res, next) {
         // password and repeat password should be the same
         // term check fail
 
-        return res.status(401).send({ log: ['Register fail! Frontend check fail.'] });
+        return res.status(404).send({ log: ['Register fail! Frontend check fail.'] });
     }
 
     const item = {
@@ -91,12 +91,12 @@ const register_workhouse = async function (req, res, next) {
     res.locals.result = db_res.acknowledged;
 
     if (!res.locals.result) {
-        return res.status(401).send({ log: ['Register fail!'] });
+        return res.status(404).send({ log: ['Register fail!'] });
     }
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Register fail! Backend store error.'] });
+            return res.status(404).send({ log: ['Register fail! Backend store error.'] });
         }
 
         req.session._id = db_res.insertedId;
@@ -111,23 +111,23 @@ const login_workhouse = async function (req, res, next) {
     const db_res = await db_server.db_read(db_name, coll_name, item);
 
     if (!db_res || db_res.length === 0) {
-        return res.status(401).send({ log: ['Login fail!'] });
+        return res.status(404).send({ log: ['Login fail!'] });
     } else if (db_res.length > 1) {
         console.log('login_check | duplicate user alert!');
 
-        return res.status(401).send({ log: ['Login fail! Backend server error, please contact the admin.'] });
+        return res.status(404).send({ log: ['Login fail! Backend server error, please contact the admin.'] });
     }
 
     const c_user = db_res[0];
     res.locals.result = await bcrypt.compare(req.body.password, c_user.password);
 
     if (!res.locals.result) {
-        return res.status(401).send({ log: ['Login fail!'] });
+        return res.status(404).send({ log: ['Login fail!'] });
     }
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Login fail! Backend store error.'] });
+            return res.status(404).send({ log: ['Login fail! Backend store error.'] });
         }
 
         req.session._id = c_user._id;
@@ -145,7 +145,7 @@ const logout_workhouse = function (req, res, next) {
 
     req.session.regenerate(function (err) {
         if (err) {
-            return res.status(401).send({ log: ['Logout fail! Backend store error.'] });
+            return res.status(404).send({ log: ['Logout fail! Backend store error.'] });
         }
 
         res.locals.logout_log = 'Logout successful!';
