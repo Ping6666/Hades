@@ -12,7 +12,7 @@ var get_object_id = (c_id) => {
 };
 
 router.get('/', async function (req, res, next) {
-    const c_document = db_document.get_db_document(`${req.query.db}.${req.query.coll}`);
+    const c_document = db_document.hades_db_document.get_collection(`${req.query.db}.${req.query.coll}`);
 
     var c_columns = null;
 

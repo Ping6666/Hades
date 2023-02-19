@@ -1,71 +1,91 @@
-const db_document = {};
+class DatabaseDocument {
 
-const db_document_new_collection = function (collection_name) {
-    db_document[collection_name] = {
-        columns: [],
-    };
-};
+    constructor() {
+        /**
+         * collections
+         *     a dict: given collection_name get content
+         */
+        this.collections = {};
+    }
 
-const db_document_add_column = function (collection_name, column_name, datatype, editable, searchable) {
-    /**
-     * column_name: string
-     * datatype: string
-     * 
-     * editable: boolean
-     * sortable: boolean
-     * searchable: boolean
-     */
+    /* setter */
 
-    const c_columns = db_document[collection_name]['columns'];
+    set_collection(collection_name) {
+        // new and reset
+        this.collections[collection_name] = {
+            columns: [],
+        };
+    }
 
-    const c_json = {
-        column_name: column_name,
-        datatype: datatype,
-        editable: editable,
-        searchable: searchable,
-    };
+    add_column(collection_name, column_name, datatype, editable, searchable) {
+        /**
+         * column_name: string
+         * datatype: string
+         * 
+         * editable: boolean
+         * sortable: boolean
+         * searchable: boolean
+         */
 
-    c_columns.push(c_json);
-};
+        if (!this.collections[collection_name]) {
+            console.log(`clear the collection, name: ${collection_name}`);
 
-/* getter */
+            this.new_collection(collection_name);
+        }
 
-const get_db_document = function (collection_name) {
-    return db_document[collection_name];
+        const c_columns = this.collections[collection_name]['columns'];
+
+        const c_json = {
+            column_name: column_name,
+            datatype: datatype,
+            editable: editable,
+            searchable: searchable,
+        };
+
+        c_columns.push(c_json);
+    }
+
+    /* getter */
+
+    get_collection(collection_name) {
+        return this.collections[collection_name];
+    }
 }
+
+const hades_db_document = new DatabaseDocument();
 
 /* announcement */
 
-db_document_new_collection('db.announcement');
+hades_db_document.set_collection('db.announcement');
 
-db_document_add_column('db.announcement', 'create_date', 'date', false, false);
-db_document_add_column('db.announcement', 'edit_date', 'date', false, false);
+hades_db_document.add_column('db.announcement', 'create_date', 'date', false, false);
+hades_db_document.add_column('db.announcement', 'edit_date', 'date', false, false);
 
 /* equipment */
 
-db_document_new_collection('db.equipment');
+hades_db_document.set_collection('db.equipment');
 
-db_document_add_column('db.equipment', 'name', 'string', true, true);
-db_document_add_column('db.equipment', 'age', 'number', true, true);
-db_document_add_column('db.equipment', 'create_date', 'date', false, false);
-db_document_add_column('db.equipment', 'edit_date', 'date', false, false);
+hades_db_document.add_column('db.equipment', 'name', 'string', true, true);
+hades_db_document.add_column('db.equipment', 'age', 'number', true, true);
+hades_db_document.add_column('db.equipment', 'create_date', 'date', false, false);
+hades_db_document.add_column('db.equipment', 'edit_date', 'date', false, false);
 
 /* property */
 
-db_document_new_collection('db.property');
+hades_db_document.set_collection('db.property');
 
-db_document_add_column('db.property', 'create_date', 'date', false, false);
-db_document_add_column('db.property', 'edit_date', 'date', false, false);
+hades_db_document.add_column('db.property', 'create_date', 'date', false, false);
+hades_db_document.add_column('db.property', 'edit_date', 'date', false, false);
 
 /* log */
 
-db_document_new_collection('db.log');
+hades_db_document.set_collection('db.log');
 
-db_document_add_column('db.log', 'create_date', 'date', false, false);
-db_document_add_column('db.log', 'edit_date', 'date', false, false);
+hades_db_document.add_column('db.log', 'create_date', 'date', false, false);
+hades_db_document.add_column('db.log', 'edit_date', 'date', false, false);
 
 /* module.exports */
 
 module.exports = {
-    get_db_document,
+    hades_db_document,
 };
