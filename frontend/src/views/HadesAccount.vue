@@ -1,8 +1,6 @@
 <template>
-
   <p>Hades Account</p>
   <AccountPage />
-
 </template>
 
 <script>

@@ -1,7 +1,5 @@
 <template>
-
   <p>Hades Logout</p>
-
 </template>
 
 <script>

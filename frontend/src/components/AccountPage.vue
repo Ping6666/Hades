@@ -1,9 +1,7 @@
 <template>
-
   <div>
     <p>account name & details...</p>
   </div>
-
 </template>
 
 <script>

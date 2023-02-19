@@ -1,7 +1,7 @@
 <template>
   <p>Hades Property</p>
 
-  <DatabaseTable msg="DatabaseTable" />
+  <DatabaseTable />
 </template>
 
 <script>

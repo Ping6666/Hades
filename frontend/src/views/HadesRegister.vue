@@ -1,5 +1,4 @@
 <template>
-
   <p>Hades Register</p>
 
   <form class="col-6 mx-auto" @submit.prevent="register">
@@ -35,7 +34,6 @@
     </div>
 
   </form>
-
 </template>
 
 <script>

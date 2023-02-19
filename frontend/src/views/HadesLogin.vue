@@ -1,5 +1,4 @@
 <template>
-
   <p>Hades Login</p>
 
   <form class="col-6 mx-auto" @submit.prevent="login">
@@ -15,7 +14,6 @@
     <button type="submit" class="btn btn-primary btn-block">Login</button>
 
   </form>
-
 </template>
 
 <script>

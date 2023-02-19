@@ -1,5 +1,4 @@
 <template>
-
   <div class="modal fade" ref="modal_information" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -23,7 +22,6 @@
     </div>
 
   </div>
-
 </template>
 
 <script>

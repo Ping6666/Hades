@@ -51,9 +51,6 @@
 
                       </div>
 
-                      <!-- TODO not showing this -->
-                      <!-- <p>{{ column[`${attr}`].value }}</p> -->
-
                     </td>
 
                   </tr>

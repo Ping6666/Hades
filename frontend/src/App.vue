@@ -106,7 +106,6 @@
   <router-view />
 
   <p>{{ can_logout }}</p>
-
 </template>
 
 <script>

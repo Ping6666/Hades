@@ -34,9 +34,6 @@
                     </option>
                   </select>
 
-                  <!-- TODO not showing this -->
-                  <p>{{ control.op_value.value }}</p>
-
                 </div>
 
               </div>

@@ -1,7 +1,7 @@
 <template>
   <p>Hades Equipment</p>
 
-  <DatabaseTable msg="DatabaseTable" />
+  <DatabaseTable />
 </template>
 
 <script>
