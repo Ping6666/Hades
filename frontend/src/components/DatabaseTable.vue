@@ -1,8 +1,6 @@
 <template>
   <div>
 
-    <p>{{ msg }}</p>
-
     <!-- TODO not showing this -->
     <p>{{ mode }}</p>
     <p>{{ ids }}</p>
@@ -20,45 +18,46 @@
   </Teleport>
 
   <div class="container">
-    <div class="d-flex justify-content-between">
 
-      <div>
+    <!-- show while on desktop not on mobile -->
+    <div class="d-none d-md-flex justify-content-between">
 
-        <button type="button" class="btn btn-info mx-1" title="information" @click="set_mode('information')">
+      <div class="btn-group" role="group">
+
+        <button type="button" class="btn btn-info" title="information" @click="set_mode('information')">
           <font-awesome-icon icon="fa-solid fa-circle-info" />
         </button>
 
-        <button type="button" class="btn btn-secondary mx-1" title="setting" @click="set_mode('setting')">
+        <button type="button" class="btn btn-secondary" title="setting" @click="set_mode('setting')">
           <font-awesome-icon icon="fa-solid fa-gear" />
         </button>
 
-        <button type="button" class="btn btn-secondary mx-1" title="filter" @click="set_mode('filter')">
+        <button type="button" class="btn btn-secondary" title="filter" @click="set_mode('filter')">
           <font-awesome-icon icon="fa-solid fa-filter" />
         </button>
 
-        <button type="button" class="btn btn-success  mx-1" title="refresh" @click="db_read">
+        <button type="button" class="btn btn-success" title="refresh" @click="db_read">
           <font-awesome-icon icon="fa-solid fa-arrows-rotate" />
         </button>
 
       </div>
 
-      <div>
+      <div class="btn-group" role="group">
 
-        <button type="button" class="btn btn-success mx-1" title="create" @click="set_mode('create')">
+        <button type="button" class="btn btn-success" title="create" @click="set_mode('create')">
           <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
 
-        <button type="button" class="btn btn-primary mx-1" :disabled="ids.length !== 1" title="read"
-          @click="set_mode('read')">
+        <button type="button" class="btn btn-primary" :disabled="ids.length !== 1" title="read" @click="set_mode('read')">
           <font-awesome-icon icon="fa-solid fa-eye" />
         </button>
 
-        <button type="button" class="btn btn-warning mx-1" :disabled="ids.length !== 1" title="update"
+        <button type="button" class="btn btn-warning" :disabled="ids.length !== 1" title="update"
           @click="set_mode('update')">
           <font-awesome-icon icon="fa-solid fa-pen-to-square" />
         </button>
 
-        <button type="button" class="btn btn-danger mx-1" :disabled="ids.length === 0" title="delete"
+        <button type="button" class="btn btn-danger" :disabled="ids.length === 0" title="delete"
           @click="set_mode('delete')">
           <font-awesome-icon icon="fa-solid fa-trash" />
         </button>
@@ -66,7 +65,69 @@
       </div>
 
     </div>
+
+    <!-- show while on mobile not on desktop -->
+    <div class="d-md-none d-flex justify-content-between">
+
+      <div class="btn-group" role="group">
+        <button id="btnGroupDrop_Options" type="button" class="btn btn-secondary dropdown-toggle"
+          data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <font-awesome-icon icon="fa-solid fa-gear" /> Options
+        </button>
+
+        <div class="dropdown-menu" aria-labelledby="btnGroupDrop_Options">
+
+          <a class="btn dropdown-item" @click="set_mode('information')">
+            <font-awesome-icon icon="fa-solid fa-circle-info" /> Information
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('setting')">
+            <font-awesome-icon icon="fa-solid fa-gear" /> Setting
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('filter')">
+            <font-awesome-icon icon="fa-solid fa-filter" /> Filter
+          </a>
+
+          <a class="btn dropdown-item" @click="db_read">
+            <font-awesome-icon icon="fa-solid fa-arrows-rotate" /> Refresh
+          </a>
+
+        </div>
+      </div>
+
+      <div class="btn-group" role="group">
+        <button id="btnGroupDrop_CRUD" type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <font-awesome-icon icon="fa-solid fa-gear" /> CRUD
+        </button>
+
+        <div class="dropdown-menu" aria-labelledby="btnGroupDrop_CRUD">
+
+          <a class="btn dropdown-item" @click="set_mode('create')">
+            <font-awesome-icon icon="fa-solid fa-plus" /> Create
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('read')">
+            <font-awesome-icon icon="fa-solid fa-eye" /> Read
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('update')">
+            <font-awesome-icon icon="fa-solid fa-pen-to-square" /> Update
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('delete')">
+            <font-awesome-icon icon="fa-solid fa-trash" /> Delete
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+
   </div>
+
+  <hr>
 
   <div class="container table-responsive">
     <div class="my_table">
@@ -127,9 +188,6 @@ import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
 
 export default {
   name: 'DatabaseTable',
-  props: {
-    msg: String,
-  },
   components: {
     ModalCRUD,
     ModalInformation,
@@ -224,6 +282,13 @@ export default {
   },
   methods: {
     set_mode(mode) {
+      if (
+        ((mode === 'read' || mode === 'update') && (this.ids.length !== 1)) ||
+        ((mode === 'delete') && (this.ids.length === 0))
+      ) {
+        return;
+      }
+
       this.mode = mode;
     },
     get_search_mode() {

@@ -12,26 +12,28 @@
                 {{ mode }} mode
               </div>
 
-              <div>
-                <button type="button" class="btn btn-success mx-1" :disabled="(mode === 'create')" title="create"
+              <div class="btn-group" role="group">
+
+                <button type="button" class="btn btn-success" :disabled="(mode === 'create')" title="create"
                   @click="change_mode('create')">
                   <font-awesome-icon icon="fa-solid fa-plus" />
                 </button>
 
-                <button type="button" class="btn btn-primary mx-1" :disabled="((mode === 'read') || (ids.length !== 1))"
+                <button type="button" class="btn btn-primary" :disabled="((mode === 'read') || (ids.length !== 1))"
                   title="read" @click="change_mode('read')">
                   <font-awesome-icon icon="fa-solid fa-eye" />
                 </button>
 
-                <button type="button" class="btn btn-warning mx-1" :disabled="((mode === 'update') || (ids.length !== 1))"
+                <button type="button" class="btn btn-warning" :disabled="((mode === 'update') || (ids.length !== 1))"
                   title="update" @click="change_mode('update')">
                   <font-awesome-icon icon="fa-solid fa-pen-to-square" />
                 </button>
 
-                <button type="button" class="btn btn-danger mx-1" :disabled="((mode === 'delete') || (ids.length === 0))"
+                <button type="button" class="btn btn-danger" :disabled="((mode === 'delete') || (ids.length === 0))"
                   title="delete" @click="change_mode('delete')">
                   <font-awesome-icon icon="fa-solid fa-trash" />
                 </button>
+
               </div>
 
             </div>
@@ -77,9 +79,6 @@
                   </p>
 
                 </div>
-
-                <!-- TODO not showing this -->
-                <p v-if="((mode === 'create') || (mode === 'update'))">{{ form[column.col_name.value] }}</p>
 
               </div>
             </div>
