@@ -14,7 +14,7 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-          <ul class="navbar-nav mr-auto">
+          <ul class="navbar-nav me-auto" id="navbar_nav_me">
 
             <li class="nav-item">
               <a class="nav-link">
@@ -50,51 +50,7 @@
 
           </ul>
 
-        </div>
-
-        <div v-if="can_logout">
-
-          <ul class="navbar-nav ms-auto">
-
-            <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/account">
-                  Account
-                </router-link>
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/logout">
-                  <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
-                </router-link>
-              </a>
-            </li>
-
-          </ul>
-
-        </div>
-        <div v-else>
-
-          <ul class="navbar-nav ms-auto">
-
-            <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/login">
-                  Login
-                </router-link>
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/register">
-                  Register
-                </router-link>
-              </a>
-            </li>
-
+          <ul class="navbar-nav ms-auto" id="navbar_nav_ms">
           </ul>
 
         </div>
@@ -102,6 +58,46 @@
       </div>
     </nav>
   </div>
+
+  <Teleport to="#navbar_nav_ms" v-if="can_logout">
+
+    <li class="nav-item">
+      <a class="nav-link">
+        <router-link style="text-decoration: none; color: inherit;" to="/account">
+          Account
+        </router-link>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link">
+        <router-link style="text-decoration: none; color: inherit;" to="/logout">
+          <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
+        </router-link>
+      </a>
+    </li>
+
+  </Teleport>
+
+  <Teleport to="#navbar_nav_ms" v-else>
+
+    <li class="nav-item">
+      <a class="nav-link">
+        <router-link style="text-decoration: none; color: inherit;" to="/login">
+          Login
+        </router-link>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link">
+        <router-link style="text-decoration: none; color: inherit;" to="/register">
+          Register
+        </router-link>
+      </a>
+    </li>
+
+  </Teleport>
 
   <router-view />
 
