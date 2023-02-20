@@ -44,6 +44,14 @@
 
       <div class="btn-group" role="group">
 
+        <button type="button" class="btn btn-info" title="upload" @click="set_mode('upload')">
+          <font-awesome-icon icon="fa-solid fa-upload" />
+        </button>
+
+        <button type="button" class="btn btn-info" title="download" @click="set_mode('download')">
+          <font-awesome-icon icon="fa-solid fa-download" />
+        </button>
+
         <button type="button" class="btn btn-success" title="create" @click="set_mode('create')">
           <font-awesome-icon icon="fa-solid fa-plus" />
         </button>
@@ -103,6 +111,14 @@
         </button>
 
         <div class="dropdown-menu" aria-labelledby="btnGroupDrop_CRUD">
+
+          <a class="btn dropdown-item" @click="set_mode('upload')">
+            <font-awesome-icon icon="fa-solid fa-upload" /> Upload
+          </a>
+
+          <a class="btn dropdown-item" @click="set_mode('download')">
+            <font-awesome-icon icon="fa-solid fa-download" /> Download
+          </a>
 
           <a class="btn dropdown-item" @click="set_mode('create')">
             <font-awesome-icon icon="fa-solid fa-plus" /> Create
