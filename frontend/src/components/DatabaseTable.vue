@@ -14,6 +14,8 @@
     <ModalInformation v-else-if="mode === 'information'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalFilter v-else-if="mode === 'filter'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalUpload v-else-if="mode === 'upload'" :mode="mode" @cb_set_mode="set_mode" />
+    <ModalDownload v-else-if="mode === 'download'" :mode="mode" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -201,6 +203,8 @@ import ModalCRUD from '@/components/DatabaseModal/ModalCRUD.vue'
 import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
 import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
 import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
+import ModalUpload from '@/components/DatabaseModal/ModalUpload.vue'
+import ModalDownload from '@/components/DatabaseModal/ModalDownload.vue'
 
 export default {
   name: 'DatabaseTable',
@@ -209,6 +213,8 @@ export default {
     ModalInformation,
     ModalSetting,
     ModalFilter,
+    ModalUpload,
+    ModalDownload,
   },
   data() {
     return {
