@@ -7,43 +7,52 @@
           <router-link style="text-decoration: none; color: inherit;" to="/">MVNLab Hades</router-link>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" @click="flip_visible" data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+          aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse" :class="visible ? '' : 'collapsed'" id="navbarSupportedContent">
 
           <ul class="navbar-nav me-auto" id="navbar_nav_me">
 
             <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/announcement">
-                  Announcement
+              <a class="nav-link" @click="flip_visible">
+                <router-link to="/announcement" custom v-slot="{ href, navigate }">
+                  <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+                    Announcement
+                  </a>
                 </router-link>
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/equipment">
-                  Equipment
+              <a class="nav-link" @click="flip_visible">
+                <router-link to="/equipment" custom v-slot="{ href, navigate }">
+                  <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+                    Equipment
+                  </a>
                 </router-link>
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link">
-                <router-link style="text-decoration: none; color: inherit;" to="/property">
-                  Property
+              <a class="nav-link" @click="flip_visible">
+                <router-link to="/property" custom v-slot="{ href, navigate }">
+                  <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+                    Property
+                  </a>
                 </router-link>
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link disabled">
-                <router-link style="text-decoration: none; color: inherit;" to="#">
-                  Log
+              <a class="nav-link" @click="flip_visible">
+                <router-link to="/log" custom v-slot="{ href, navigate }">
+                  <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+                    Log
+                  </a>
                 </router-link>
               </a>
             </li>
@@ -62,17 +71,21 @@
   <Teleport to="#navbar_nav_ms" v-if="can_logout">
 
     <li class="nav-item">
-      <a class="nav-link">
-        <router-link style="text-decoration: none; color: inherit;" to="/account">
-          Account
+      <a class="nav-link" @click="flip_visible">
+        <router-link to="/account" custom v-slot="{ href, navigate }">
+          <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+            Account
+          </a>
         </router-link>
       </a>
     </li>
 
     <li class="nav-item">
-      <a class="nav-link">
-        <router-link style="text-decoration: none; color: inherit;" to="/logout">
-          <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
+      <a class="nav-link" @click="flip_visible">
+        <router-link to="/logout" custom v-slot="{ href, navigate }">
+          <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+            <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
+          </a>
         </router-link>
       </a>
     </li>
@@ -82,17 +95,21 @@
   <Teleport to="#navbar_nav_ms" v-else>
 
     <li class="nav-item">
-      <a class="nav-link">
-        <router-link style="text-decoration: none; color: inherit;" to="/login">
-          Login
+      <a class="nav-link" @click="flip_visible">
+        <router-link to="/login" custom v-slot="{ href, navigate }">
+          <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+            Login
+          </a>
         </router-link>
       </a>
     </li>
 
     <li class="nav-item">
-      <a class="nav-link">
-        <router-link style="text-decoration: none; color: inherit;" to="/register">
-          Register
+      <a class="nav-link" @click="flip_visible">
+        <router-link to="/register" custom v-slot="{ href, navigate }">
+          <a :href="href" @click="navigate" style="text-decoration: none; color: inherit;">
+            Register
+          </a>
         </router-link>
       </a>
     </li>
@@ -109,6 +126,7 @@ export default {
   name: 'App',
   data() {
     return {
+      visible: false,
       can_logout: null,
     };
   },
@@ -118,6 +136,9 @@ export default {
     },
   },
   methods: {
+    flip_visible() {
+      this.visible = !this.visible;
+    },
     async can_logout_check() {
       try {
         const body = {};
