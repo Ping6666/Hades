@@ -1,7 +1,7 @@
 <template>
   <div class="modal fade" ref="modal_upload" tabindex="-1" aria-hidden="true">
 
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -15,7 +15,16 @@
         </div>
 
         <div class="modal-body">
-          Upload page
+
+          <label for="form_file" class="form-label">CSV file input: </label>
+          <input class="form-control" type="file" ref="csv_file" id="form_file" @change="csv_select">
+
+        </div>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" :disabled="!file" @click="csv_upload">Submit</button>
+
         </div>
 
       </div>
@@ -38,6 +47,8 @@ export default {
   data() {
     return {
       the_modal: null,
+
+      file: null,
     };
   },
   methods: {
@@ -47,6 +58,27 @@ export default {
     close() {
       this.the_modal.hide();
       this.$emit("cb_set_mode", null);
+    },
+    csv_select() {
+      const file_type = ["text/csv"];
+      const files = this.$refs.csv_file.files;
+
+      if (
+        (files.length === 0) ||
+        (!file_type.includes(files[0].type))
+      ) {
+        this.file = null;
+        return;
+      }
+
+      this.file = files[0];
+      return;
+    },
+    async csv_upload() {
+      const form_data = new FormData();
+      form_data.append('file', this.file);
+
+      await this.$store.state.db_connection.upload(form_data);
     },
   },
   mounted() {

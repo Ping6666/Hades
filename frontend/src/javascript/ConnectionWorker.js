@@ -1,13 +1,16 @@
 // workhouse
 
-const _do_fetch = async function (url, method, mode, body) {
+const _do_fetch = async function (url, method, mode, body,
+    headers = { 'Content-Type': 'application/json' }
+) {
     const init = {
         method: method,
         mode: mode,
-        headers: {
-            'Content-Type': 'application/json',
-        },
     };
+
+    if (headers) {
+        init['headers'] = headers;
+    }
 
     if (method === 'POST') {
         init['body'] = JSON.stringify(body);
@@ -130,6 +133,18 @@ class DatabaseConnection {
         // database delete
         const url = `${this.uri_path}/delete?${this.uri_query}`;
         return await _do_fetch(url, 'POST', 'cors', body);
+    }
+
+    async upload(body) {
+        // database upload
+        const url = `${this.uri_path}/upload?${this.uri_query}`;
+        const headers = null;
+        return await _do_fetch(url, 'POST', 'no-cors', body, headers);
+    }
+
+    async download(body) {
+        // database download
+        return;
     }
 }
 
