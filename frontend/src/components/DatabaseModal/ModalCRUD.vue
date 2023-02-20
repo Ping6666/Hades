@@ -240,10 +240,10 @@ export default {
         minute: '2-digit',
       });
     },
-    db_create() {
+    async db_create() {
       try {
         const body = this.get_item;
-        this.$store.state.db_connection.create(body);
+        await this.$store.state.db_connection.create(body);
 
         this.close_stage();
       } catch (error) {
@@ -271,20 +271,20 @@ export default {
         console.log(error);
       }
     },
-    db_update() {
+    async db_update() {
       try {
         const body = Object.assign({}, this.get_filter, { 'item': this.get_item });
-        this.$store.state.db_connection.update(body);
+        await this.$store.state.db_connection.update(body);
 
         this.close_stage();
       } catch (error) {
         console.log(error);
       }
     },
-    db_delete() {
+    async db_delete() {
       try {
         const body = this.get_filter;
-        this.$store.state.db_connection.delete(body);
+        await this.$store.state.db_connection.delete(body);
 
         this.close_stage();
       } catch (error) {
