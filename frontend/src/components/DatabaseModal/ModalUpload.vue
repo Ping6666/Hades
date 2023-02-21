@@ -75,15 +75,21 @@ export default {
       return;
     },
     async csv_upload() {
-      if (!this.file) {
-        console.log('Error | no file!');
-        return;
+      try {
+        if (!this.file) {
+          console.log('Error | no file!');
+        } else {
+          const form_data = new FormData();
+          form_data.append('file', this.file, 'upload.csv');
+
+          await this.$store.state.db_connection.upload(form_data);
+        }
+
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.close();
       }
-
-      const form_data = new FormData();
-      form_data.append('file', this.file, 'upload.csv');
-
-      await this.$store.state.db_connection.upload(form_data);
     },
   },
   mounted() {

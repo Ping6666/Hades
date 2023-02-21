@@ -245,9 +245,10 @@ export default {
         const body = this.get_item;
         await this.$store.state.db_connection.create(body);
 
-        this.close_stage();
       } catch (error) {
         console.log(error);
+      } finally {
+        this.close_stage();
       }
     },
     async db_read() {
@@ -276,9 +277,10 @@ export default {
         const body = Object.assign({}, this.get_filter, { 'item': this.get_item });
         await this.$store.state.db_connection.update(body);
 
-        this.close_stage();
       } catch (error) {
         console.log(error);
+      } finally {
+        this.close_stage();
       }
     },
     async db_delete() {
@@ -286,9 +288,10 @@ export default {
         const body = this.get_filter;
         await this.$store.state.db_connection.delete(body);
 
-        this.close_stage();
       } catch (error) {
         console.log(error);
+      } finally {
+        this.close_stage();
       }
     },
   },
