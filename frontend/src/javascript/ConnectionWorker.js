@@ -1,6 +1,6 @@
 // workhouse
 
-const _do_fetch = async function (url, method, mode, body,
+const _do_fetch = async function (url, method, mode, body = null, body_jsonstringify = true,
     headers = { 'Content-Type': 'application/json' }
 ) {
     const init = {
@@ -12,8 +12,12 @@ const _do_fetch = async function (url, method, mode, body,
         init['headers'] = headers;
     }
 
-    if (method === 'POST') {
-        init['body'] = JSON.stringify(body);
+    if ((method === 'POST') && body) {
+        if (body_jsonstringify) {
+            init['body'] = JSON.stringify(body);
+        } else {
+            init['body'] = body;
+        }
     }
 
     const res = await (await fetch(url, init)).json();
@@ -139,6 +143,9 @@ class DatabaseConnection {
         // database upload
         const url = `${this.uri_path}/upload?${this.uri_query}`;
         const headers = null;
+        // const headers = { 'Content-Type': 'multipart/form-data' };
+        // const headers = { 'Content-Type': 'multipart/form-data; boundary=XXXXXXXXXX' };
+
         return await _do_fetch(url, 'POST', 'no-cors', body, headers);
     }
 
