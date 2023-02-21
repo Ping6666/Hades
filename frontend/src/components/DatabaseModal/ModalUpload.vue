@@ -100,6 +100,9 @@ export default {
 
     this.open();
   },
+  unmounted() {
+    this.close();
+  },
 }
 </script>
   

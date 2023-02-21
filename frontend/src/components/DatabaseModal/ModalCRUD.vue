@@ -314,5 +314,8 @@ export default {
       this.db_read();
     }
   },
+  unmounted() {
+    this.close_stage();
+  },
 }
 </script>
