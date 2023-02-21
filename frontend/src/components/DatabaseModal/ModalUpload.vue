@@ -75,8 +75,13 @@ export default {
       return;
     },
     async csv_upload() {
+      if (!this.file) {
+        console.log('Error | no file!');
+        return;
+      }
+
       const form_data = new FormData();
-      form_data.append('file', this.file);
+      form_data.append('file', this.file, 'upload.csv');
 
       await this.$store.state.db_connection.upload(form_data);
     },
