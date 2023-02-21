@@ -6,6 +6,7 @@ const db_server = require('../core/db_server');
 const db_document = require('../core/db_document');
 
 const auth = require('../middleware/auth');
+const file_multipart = require('../middleware/file_multipart');
 
 var get_object_id = (c_id) => {
     return new object_id(c_id);
@@ -83,6 +84,27 @@ router.post('/delete', auth.session_verify, async function (req, res, next) {
     });
 
     res.json({ 'message': '' });
+});
+
+router.post('/upload', file_multipart.upload.single('file'), async function (req, res, next) {
+    var message = "upload";
+    var detail = '';
+
+    try {
+        detail = req.file;
+
+        message = 'File uploaded successfully!';
+    } catch (error) {
+        detail = error;
+
+        if (error instanceof multer.MulterError) {
+            message = 'File uploaded fail! (multer)';
+        } else {
+            message = 'File uploaded fail!';
+        }
+    } finally {
+        res.json({ 'message': message, detail: detail });
+    }
 });
 
 module.exports = router;
