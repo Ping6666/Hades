@@ -5,13 +5,13 @@
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title col-md-10">
+          <h5 class="modal-title col-11">
             <div class="text-capitalize">
               {{ mode }} mode
             </div>
           </h5>
 
-          <button type="button" class="btn-close" aria-label="Close" @click="close"></button>
+          <button type="button" class="btn-close" aria-label="Close" @click="close_stage"></button>
         </div>
 
         <div class="modal-body">
@@ -23,7 +23,102 @@
 
         <div class="modal-footer">
 
-          <button type="button" class="btn btn-primary" :disabled="!file" @click="csv_upload">Submit</button>
+          <button type="button" class="btn btn-primary" :disabled="!file" @click="csv_load_parse">Submit</button>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div class="modal fade" ref="modal_upload_check" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title col-11">
+            <div class="d-flex justify-content-between">
+
+              <div class="text-capitalize">
+                {{ mode }} mode
+              </div>
+
+              <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+                <!-- show while on desktop not on mobile -->
+                <div class="d-none d-md-flex btn-group" role="group">
+
+                  <button type="button" class="btn btn-primary" title="previous item" @click="change_iter('prev')">
+                    <font-awesome-icon icon="fa-solid fa-chevron-left" />
+                  </button>
+
+                </div>
+
+                <div class="input-group mx-1">
+
+                  <input type="number" class="form-control" v-model.trim="pending_iter" min="0" :max="pending_max - 1"
+                    aria-label="Input group" aria-describedby="input_group">
+                  <div class="input-group-text" id="input_group">{{ "/ " + pending_max }}</div>
+
+                </div>
+
+                <!-- show while on desktop not on mobile -->
+                <div class="d-none d-md-flex btn-group" role="group">
+
+                  <button type="button" class="btn btn-primary" title="next item" @click="change_iter('next')">
+                    <font-awesome-icon icon="fa-solid fa-chevron-right" />
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+          </h5>
+
+          <button type="button" class="btn-close" aria-label="Close" @click="open_stage(0)"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container-fluid">
+
+            <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
+              <div class="col">
+                <p class="text-end fw-bold">{{ column.col_name.value }}</p>
+              </div>
+
+              <div class="vr"></div>
+
+              <div class="col">
+
+                <div v-if="pending">
+
+                  <p v-if="column.datatype.value === 'date'">
+                    {{ date_convert(pending[pending_iter][column.col_name.value]) }}
+                  </p>
+                  <p v-else>
+                    {{ pending[pending_iter][column.col_name.value] }}
+                  </p>
+
+                </div>
+                <div v-else>
+
+                  <p>Error</p>
+
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-secondary" @click="open_stage(0)">Cancel</button>
+          <button type="button" class="btn btn-primary" @click="csv_upload">Confirm</button>
 
         </div>
 
@@ -46,18 +141,68 @@ export default {
   ],
   data() {
     return {
+      // modal
       the_modal: null,
+      the_modal_check: null,
 
+      // file
       file: null,
+
+      // pending
+      pending_max: 0,
+      pending_iter: 0,
+      pending: null,
+
+      // upload
+      upload_list: null,
     };
   },
   methods: {
-    open() {
-      this.the_modal.show();
+    open_stage(stage) {
+      if (stage === 0) {
+        this.the_modal.show();
+        this.the_modal_check.hide();
+      } else if (stage === 1) {
+        this.the_modal.hide();
+        this.the_modal_check.show();
+      }
     },
-    close() {
+    close_stage() {
       this.the_modal.hide();
+      this.the_modal_check.hide();
+
       this.$emit("cb_set_mode", null);
+    },
+    date_convert(str) {
+      const c_date = new Date(str);
+
+      return c_date.toLocaleString('en', {
+        hour12: false,
+        // dateStyle: 'short',
+        // timeStyle: 'short',
+
+        weekday: 'short',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    },
+    change_iter(mode) {
+      if (this.pending) {
+        const l = this.pending_max;
+
+        if (mode === 'prev') {
+          this.pending_iter -= 1;
+        } else if (mode === 'next') {
+          this.pending_iter += 1;
+        }
+
+        this.pending_iter = ((this.pending_iter % l) + l) % l;
+      } else {
+        this.pending_iter = 0;
+      }
     },
     csv_select() {
       const file_type = ["text/csv"];
@@ -74,22 +219,102 @@ export default {
       this.file = files[0];
       return;
     },
-    async csv_upload() {
+    csv_parser(text) {
+      const _text = String(text).split('\r\n');
+
+      const header = [];
+      const rows = [];
+
+      for (let i = 0; i < _text.length; i++) {
+        // const c_text = _text[i].split(',');
+        const c_text = _text[i].match(/('.*?'|".*?"|[^"',]+|(?<=,{1}))(?=,|$)/g);
+
+        if (i == 0) {
+          // header
+
+          for (let j = 0; j < c_text.length; j++) {
+            const _colvalue = c_text[j];
+
+            header.push(_colvalue);
+          }
+        } else {
+          // rows
+
+          const _row = {};
+
+          for (let j = 0; j < header.length; j++) {
+            const _colname = header[j];
+            const _colvalue = c_text[j];
+
+            _row[_colname] = _colvalue;
+          }
+
+          rows.push(_row);
+        }
+      }
+
+      return rows;
+    },
+    async csv_reader(_file) {
+      try {
+        const _fn = this.csv_parser;
+
+        const _promise = new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            // e: Event (ProgressEvent)
+
+            const _text = e.target.result;
+            resolve(_fn(_text));
+          };
+
+          reader.readAsText(_file);
+        });
+
+        return await _promise.then((value) => {
+          return value;
+        });
+
+      } catch (err) {
+        console.log(err);
+      }
+
+      return null;
+    },
+    async csv_load_parse() {
       try {
         if (!this.file) {
-          console.log('Error | no file!');
-        } else {
-          const form_data = new FormData();
-          form_data.append('file', this.file, 'upload.csv');
-
-          await this.$store.state.db_connection.upload(form_data);
+          throw new Error('Error | file can not be fetch!');
         }
 
+        /**
+         * 1. load & parse file at browser
+         * 2. show result on new modal
+         */
+
+        this.pending = await this.csv_reader(this.file);
+        this.pending_iter = 0;
+        this.pending_max = this.pending.length;
+
+        if (!this.pending) {
+          throw new Error('Error | file can not be read!');
+        }
+
+        this.open_stage(1);
       } catch (error) {
         console.log(error);
-      } finally {
-        this.close();
+
+        this.close_stage();
       }
+    },
+    async csv_upload() {
+      /* upload file to backend */
+
+      const form_data = new FormData();
+      form_data.append('file', this.file, 'upload.csv');
+
+      await this.$store.state.db_connection.upload(form_data);
     },
   },
   mounted() {
@@ -98,10 +323,15 @@ export default {
       keyboard: false,
     });
 
-    this.open();
+    this.the_modal_check = new Modal(this.$refs.modal_upload_check, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+
+    this.open_stage(0);
   },
   unmounted() {
-    this.close();
+    this.close_stage();
   },
 }
 </script>
