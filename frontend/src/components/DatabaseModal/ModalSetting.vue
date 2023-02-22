@@ -5,7 +5,7 @@
       <div class="modal-content">
 
         <div class="modal-header">
-          <h5 class="modal-title col-md-10">
+          <h5 class="modal-title col-11">
             <div class="text-capitalize">
               {{ mode }} mode
             </div>
