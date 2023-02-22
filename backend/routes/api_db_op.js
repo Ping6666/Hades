@@ -4,8 +4,11 @@ var router = express.Router();
 var object_id = require('mongodb').ObjectId;
 const db_server = require('../core/db_server');
 const db_document = require('../core/db_document');
+const db_csv = require('../core/db_csv');
 
 const auth = require('../middleware/auth');
+
+const multer = require("multer");
 const file_multipart = require('../middleware/file_multipart');
 
 var get_object_id = (c_id) => {
@@ -87,23 +90,27 @@ router.post('/delete', auth.session_verify, async function (req, res, next) {
 });
 
 router.post('/upload', file_multipart.upload.single('file'), async function (req, res, next) {
-    var message = "upload";
+    // TODO session_verify
+
+    var log = "upload";
     var detail = '';
 
     try {
         detail = req.file;
+        log = 'File uploaded successfully!';
 
-        message = 'File uploaded successfully!';
+        // const filename = req.file.destination + req.file.filename;
+        // await db_csv.read_scv(filename);
     } catch (error) {
         detail = error;
 
         if (error instanceof multer.MulterError) {
-            message = 'File uploaded fail! (multer)';
+            log = 'File uploaded fail! (multer)';
         } else {
-            message = 'File uploaded fail!';
+            log = 'File uploaded fail!';
         }
     } finally {
-        res.json({ 'message': message, detail: detail });
+        res.json({ log: log, detail: detail });
     }
 });
 
