@@ -48,7 +48,7 @@
 
             <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
               <div class="col">
-                <p class="text-end fw-bold">{{ column.col_name.value }}</p>
+                <p class="text-end fw-bold" style="white-space: nowrap">{{ column.col_name.value }}</p>
               </div>
 
               <div class="vr"></div>
@@ -172,26 +172,31 @@ export default {
 
       const item = {};
 
-      if (this.form.name) {
-        item.name = this.form.name;
-      }
+      const c_db_struct = this.$store.state.db_struct;
+      for (let i = 0; i < c_db_struct.columns.length; i++) {
+        const _colname = c_db_struct.columns[i].col_name.value;
 
-      if (this.form.age) {
-        item.age = this.form.age;
+        if (this.form[_colname]) {
+          item[_colname] = this.form[_colname];
+        } else if (item[_colname]) {
+          delete item[_colname];
+        }
       }
 
       return item;
     },
     cannot_save() {
       // for create & update
-      var cannot = false;
+      var cannot = true;
 
-      if (!this.form.name && !this.form.age) {
-        cannot = true;
-      } else if (this.form.name === this.db_rows.name) {
-        cannot = true;
-      } else if (this.form.age === this.db_rows.age) {
-        cannot = true;
+      const c_db_struct = this.$store.state.db_struct;
+      for (let i = 0; i < c_db_struct.columns.length; i++) {
+        const _colname = c_db_struct.columns[i].col_name.value;
+
+        if (this.form[_colname] && (!this.db_rows[_colname] || (this.form[_colname] != this.db_rows[_colname]))) {
+          cannot = false;
+          break;
+        }
       }
 
       return cannot;
