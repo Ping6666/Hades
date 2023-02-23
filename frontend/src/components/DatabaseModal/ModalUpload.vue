@@ -332,12 +332,19 @@ export default {
       }
     },
     async csv_upload() {
-      /* upload file to backend */
+      try {
+        /* upload file to backend */
 
-      const form_data = new FormData();
-      form_data.append('file', this.file, 'upload.csv');
+        const form_data = new FormData();
+        form_data.append('file', this.file, 'upload.csv');
 
-      await this.$store.state.db_connection.upload(form_data);
+        await this.$store.state.db_connection.upload(form_data);
+
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.close_stage();
+      }
     },
   },
   mounted() {
