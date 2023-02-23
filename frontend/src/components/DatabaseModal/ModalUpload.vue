@@ -127,7 +127,7 @@
 
   </div>
 </template>
-  
+
 <script>
 import { Modal } from 'bootstrap';
 
@@ -220,40 +220,54 @@ export default {
       return;
     },
     csv_parser(text) {
-      const _text = String(text).split('\r\n');
+      try {
+        const _text = String(text).split('\r\n');
 
-      const header = [];
-      const rows = [];
+        const header = [];
+        const rows = [];
 
-      for (let i = 0; i < _text.length; i++) {
-        // const c_text = _text[i].split(',');
-        const c_text = _text[i].match(/('.*?'|".*?"|[^"',]+|(?<=,{1}))(?=,|$)/g);
+        for (let i = 0; i < _text.length; i++) {
+          // const c_text = _text[i].split(',');
+          const c_text = _text[i].match(/('.*?'|".*?"|[^"',]+|(?<=^|,{1}))(?=,|$)/g);
 
-        if (i == 0) {
-          // header
-
-          for (let j = 0; j < c_text.length; j++) {
-            const _colvalue = c_text[j];
-
-            header.push(_colvalue);
-          }
-        } else {
-          // rows
-
-          const _row = {};
-
-          for (let j = 0; j < header.length; j++) {
-            const _colname = header[j];
-            const _colvalue = c_text[j];
-
-            _row[_colname] = _colvalue;
+          if (!c_text) {
+            continue;
           }
 
-          rows.push(_row);
+          if (i == 0) {
+            // header
+
+            for (let j = 0; j < c_text.length; j++) {
+              const _colvalue = c_text[j];
+
+              header.push(_colvalue);
+            }
+          } else {
+            // rows
+
+            const _row = {};
+
+            if (!header) {
+              throw new Error('Error | csv_parser not getting header');
+            }
+
+            for (let j = 0; ((j < header.length) && (j < c_text.length)); j++) {
+              const _colname = header[j];
+              const _colvalue = c_text[j];
+
+              _row[_colname] = _colvalue;
+            }
+
+            rows.push(_row);
+          }
         }
+
+        return rows;
+      } catch (err) {
+        console.log(err);
       }
 
-      return rows;
+      return null;
     },
     async csv_reader(_file) {
       try {
@@ -266,7 +280,14 @@ export default {
             // e: Event (ProgressEvent)
 
             const _text = e.target.result;
-            resolve(_fn(_text));
+
+            try {
+              return resolve(_fn(_text));
+            } catch (err) {
+              console.log(err);
+            }
+
+            resolve(null);
           };
 
           reader.readAsText(_file);
@@ -294,12 +315,14 @@ export default {
          */
 
         this.pending = await this.csv_reader(this.file);
-        this.pending_iter = 0;
-        this.pending_max = this.pending.length;
 
-        if (!this.pending) {
+        if (!this.pending || this.pending.length == 0) {
+          // TODO display on log
           throw new Error('Error | file can not be read!');
         }
+
+        this.pending_iter = 0;
+        this.pending_max = this.pending.length;
 
         this.open_stage(1);
       } catch (error) {
