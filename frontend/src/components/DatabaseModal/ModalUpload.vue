@@ -58,7 +58,7 @@
 
                 <div class="input-group mx-1">
 
-                  <input type="number" class="form-control" v-model.trim="pending_iter" min="0" :max="pending_max - 1"
+                  <input type="number" class="form-control" v-model.trim="c_input" min="1" :max="pending_max"
                     aria-label="Input group" aria-describedby="input_group">
                   <div class="input-group-text" id="input_group">{{ "/ " + pending_max }}</div>
 
@@ -148,14 +148,46 @@ export default {
       // file
       file: null,
 
+      // input
+      c_input: 0,
+      valid_input: 0,
+
       // pending
-      pending_max: 0,
-      pending_iter: 0,
+      pending_max: 1,
       pending: null,
 
       // upload
       upload_list: null,
     };
+  },
+  watch: {
+    c_input() {
+      var _valid = null;
+
+      if (typeof this.c_input != 'number') {
+        _valid = 1;
+      } else if (this.c_input < 1) {
+        _valid = 1;
+      } else if (this.c_input > this.pending_max) {
+        _valid = this.pending_max;
+      } else {
+        _valid = this.c_input;
+      }
+
+      this.valid_input = _valid;
+    },
+  },
+  computed: {
+    pending_iter() {
+      if (this.valid_input) {
+        const _iter = this.valid_input - 1;
+        const l = this.pending_max;
+
+        return this.get_loop_number(_iter);
+      }
+
+      return null;
+    },
   },
   methods: {
     open_stage(stage) {
@@ -189,19 +221,22 @@ export default {
         minute: '2-digit',
       });
     },
+    get_loop_number(n) {
+      const l = this.pending_max;
+      return ((n % l) + l) % l;
+    },
     change_iter(mode) {
       if (this.pending) {
-        const l = this.pending_max;
 
         if (mode === 'prev') {
-          this.pending_iter -= 1;
+          this.c_input -= 1;
         } else if (mode === 'next') {
-          this.pending_iter += 1;
+          this.c_input += 1;
         }
 
-        this.pending_iter = ((this.pending_iter % l) + l) % l;
+        this.c_input = this.get_loop_number(this.c_input - 1) + 1;
       } else {
-        this.pending_iter = 0;
+        this.c_input = null;
       }
     },
     csv_select() {
@@ -221,7 +256,8 @@ export default {
     },
     csv_parser(text) {
       try {
-        const _text = String(text).split('\r\n');
+        // const _text = String(text).split('\r\n');
+        const _text = String(text).split(/\r?\n/gm);
 
         const header = [];
         const rows = [];
@@ -321,7 +357,8 @@ export default {
           throw new Error('Error | file can not be read!');
         }
 
-        this.pending_iter = 0;
+        // reset
+        this.c_input = 1;
         this.pending_max = this.pending.length;
 
         this.open_stage(1);
