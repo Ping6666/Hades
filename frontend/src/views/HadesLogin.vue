@@ -1,5 +1,5 @@
 <template>
-  <p>Hades Login</p>
+  <p></p>
 
   <form class="col-6 mx-auto" @submit.prevent="login">
 

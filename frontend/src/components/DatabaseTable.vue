@@ -2,7 +2,6 @@
   <div>
 
     <!-- TODO not showing this -->
-    <p>{{ mode }}</p>
     <p>{{ ids }}</p>
 
   </div>

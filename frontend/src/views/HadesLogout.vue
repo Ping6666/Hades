@@ -1,5 +1,5 @@
 <template>
-  <p>Hades Logout</p>
+  <p></p>
 </template>
 
 <script>

@@ -1,6 +1,4 @@
 <template>
-  <p>Hades Equipment</p>
-
   <DatabaseTable />
 </template>
 

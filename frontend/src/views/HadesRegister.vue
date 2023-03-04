@@ -1,5 +1,5 @@
 <template>
-  <p>Hades Register</p>
+  <p></p>
 
   <form class="col-6 mx-auto" @submit.prevent="register">
 

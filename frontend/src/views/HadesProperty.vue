@@ -1,6 +1,4 @@
 <template>
-  <p>Hades Property</p>
-
   <DatabaseTable />
 </template>
 

@@ -1,6 +1,4 @@
 <template>
-  <p>Hades Announcement</p>
-
   <DatabaseTable />
 </template>
 
