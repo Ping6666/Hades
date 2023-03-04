@@ -11,9 +11,42 @@ const auth = require('../middleware/auth');
 const multer = require("multer");
 const file_multipart = require('../middleware/file_multipart');
 
-var get_object_id = (c_id) => {
+/* core worker */
+
+const get_object_id = (c_id) => {
     return new object_id(c_id);
 };
+
+const single_create_worker = async (_query, _item) => {
+    var _state = null;
+
+    try {
+        // TODO 1. check col. that match the db col.
+        // TODO 2. adjust db_document number type col. convert from string to number
+        // TODO 3. check potential dulp.
+
+        // add some content that auto gen. in the backend
+        _item.create_date = new Date();
+        _item.edit_date = new Date();
+
+        // do db create
+        const _res = await db_server.db_create(_query.db, _query.coll, _item);
+
+        if (_res && _res['insertedId']) {
+            _state = true;
+        } else {
+            _state = false;
+        }
+    } catch (err) {
+        console.log(err);
+
+        _state = false;
+    } finally {
+        return _state;
+    }
+}
+
+/* router */
 
 router.get('/', async function (req, res, next) {
     const c_document = db_document.hades_db_document.get_collection(`${req.query.db}.${req.query.coll}`);
@@ -34,11 +67,8 @@ router.post('/create', auth.session_verify, async function (req, res, next) {
 
     console.log(req.body);
 
-    const c_item = req.body;
-    c_item.create_date = new Date();
-    c_item.edit_date = new Date();
+    const db_res = await single_create_worker(req.query, req.body);
 
-    const db_res = await db_server.db_create(req.query.db, req.query.coll, c_item);
     res.json({ 'message': db_res });
 });
 
@@ -102,13 +132,22 @@ router.post('/upload', auth.session_verify, file_multipart.upload.single(), asyn
         /* upload selected content as json */
 
         const _json = JSON.parse(req.body['json']);
+        const _json_keys = Object.keys(_json);
 
-        console.log(_json);
+        const _res = [];
 
-        // log = 'File uploaded successfully!';
+        for (let i = 0; i < _json_keys.length; i++) {
+            const _key = _json_keys[i];
+            const _item = _json[_key];
 
-        // const filename = req.file.destination + req.file.filename;
-        // await db_csv.read_scv(filename);
+            // do create
+            const db_res = await single_create_worker(req.query, _item);
+
+            _res.push(db_res);
+        }
+
+        log = 'File uploaded successfully!';
+        detail = _res;
     } catch (error) {
         detail = error;
 
