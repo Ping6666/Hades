@@ -159,6 +159,7 @@
               <tr>
 
                 <th>
+                  #
                 </th>
 
                 <th v-for="(column, key) in get_show_columns" :key="key" style="white-space: nowrap">
