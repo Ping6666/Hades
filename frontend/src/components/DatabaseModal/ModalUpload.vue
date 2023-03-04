@@ -566,10 +566,6 @@ export default {
 
         const form_data = new FormData();
 
-        /* upload full csv file */
-
-        // form_data.append('file', this.file, 'upload.csv');
-
         /* upload selected content as json */
 
         const _upload_json = {};
