@@ -89,15 +89,29 @@ router.post('/delete', auth.session_verify, async function (req, res, next) {
     res.json({ 'message': '' });
 });
 
-router.post('/upload', file_multipart.upload.single('file'), async function (req, res, next) {
-    // TODO session_verify
+router.post('/upload', auth.session_verify, file_multipart.upload.single('file'), async function (req, res, next) {
+    if (!res.locals.state_verify) {
+        // TODO activate session_verify
+        // return res.status(404).send({ log: ['Please login first!'] });
+    }
 
     var log = "upload";
     var detail = '';
 
     try {
         detail = req.file;
-        log = 'File uploaded successfully!';
+
+        if (detail) {
+            /* upload full csv file */
+
+            log = 'File uploaded successfully!';
+        } else {
+            /* upload selected content as json */
+
+            const _json = JSON.parse(req.body['json']);
+
+            console.log(_json);
+        }
 
         // const filename = req.file.destination + req.file.filename;
         // await db_csv.read_scv(filename);

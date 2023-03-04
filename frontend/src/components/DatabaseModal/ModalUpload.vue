@@ -60,7 +60,7 @@
 
                   <div class="btn-group" role="group">
 
-                    <button type="button" class="btn btn-primary" title="view items" @click="view_pending">
+                    <button type="button" class="btn btn-primary" title="view items" @click="open_stage(2)">
                       <font-awesome-icon icon="fa-solid fa-eye" />
                     </button>
 
@@ -80,7 +80,8 @@
 
                   <div class="btn-group" role="group">
 
-                    <button type="button" class="btn btn-primary" @click=";">Upload</button>
+                    <button type="button" class="btn btn-primary" :disabled="!upload_list || upload_list.length === 0"
+                      @click="csv_upload">Upload</button>
 
                   </div>
 
@@ -555,22 +556,40 @@ export default {
         }
       }
     },
-    view_pending() {
-      this.open_stage(2);
-    },
     async csv_upload() {
       try {
-        /* upload file to backend */
+        if (!this.pending || !this.upload_list || this.upload_list.length === 0) {
+          return;
+        }
+
+        /* upload to backend */
 
         const form_data = new FormData();
-        form_data.append('file', this.file, 'upload.csv');
 
-        await this.$store.state.db_connection.upload(form_data);
+        /* upload full csv file */
+
+        // form_data.append('file', this.file, 'upload.csv');
+
+        /* upload selected content as json */
+
+        const _upload_json = {};
+
+        for (let i = 0; i < this.upload_list.length; i++) {
+          const _id = this.upload_list[i];
+          const _json = JSON.parse(JSON.stringify(this.pending[_id - 1]));
+
+          _upload_json[_id] = _json;
+        }
+
+        form_data.append('json', JSON.stringify(_upload_json));
+
+        const res = await this.$store.state.db_connection.upload(form_data);
+        console.log(res);
 
       } catch (error) {
         console.log(error);
-      } finally {
-        this.close_stage();
+
+        // this.close_stage();
       }
     },
   },
