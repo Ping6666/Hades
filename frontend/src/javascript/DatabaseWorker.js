@@ -24,7 +24,7 @@ class StructBase {
 
 class StructEquipment {
 
-    constructor(col_name, editable, sortable, datatype, showable = true, fuzzy_search = true, searchable = true) {
+    constructor(col_name, editable, sortable, datatype, showable = true, modal_showable = false, fuzzy_search = true, searchable = true) {
         this.col_name = {
             name: 'column name',
             value: col_name,
@@ -60,6 +60,13 @@ class StructEquipment {
             type: 'form_checkbox_switch',// boolean
         };
 
+        this.modal_showable = {
+            name: 'modal showable',
+            value: modal_showable,
+            editable: true,
+            type: 'form_checkbox_switch',// boolean
+        };
+
         this.fuzzy_search = {
             name: 'fuzzy search',
             value: fuzzy_search,
@@ -80,6 +87,7 @@ class StructEquipment {
             'sortable',
             'datatype',
             'showable',
+            'modal_showable',
             'fuzzy_search',
             'search_string',
         ];
@@ -115,7 +123,7 @@ class DatabaseStruct {
 
             // TODO: consistency in name and sequence
             this.columns.push(new StructEquipment(c_column['column_name'], c_column['editable'], true,
-                c_column['datatype'], true, true, c_column['searchable']));
+                c_column['datatype'], true, c_column['modal_showable'], true, c_column['searchable']));
         }
     }
 }
