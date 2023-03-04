@@ -369,5 +369,6 @@ export default {
   display: inline-block;
   align-items: center;
   justify-content: center;
+  height: 65vh;
 }
 </style>
