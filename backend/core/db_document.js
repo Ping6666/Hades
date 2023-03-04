@@ -51,6 +51,24 @@ class DatabaseDocument {
     get_collection(collection_name) {
         return this.collections[collection_name];
     }
+
+    get_collection_json(collection_name) {
+        const _columns_json = {};
+
+        const c_document = this.get_collection(collection_name);
+
+        if (!c_document) {
+            return _columns_json;
+        }
+
+        const c_columns = c_document['columns'];
+
+        for (let i = 0; i < c_columns.length; i++) {
+            _columns_json[c_columns[i].column_name] = c_columns[i];
+        }
+
+        return _columns_json;
+    }
 }
 
 const hades_db_document = new DatabaseDocument();

@@ -21,16 +21,54 @@ const single_create_worker = async (_query, _item) => {
     var _state = null;
 
     try {
-        // TODO 1. check col. that match the db col.
-        // TODO 2. adjust db_document number type col. convert from string to number
-        // TODO 3. check potential dulp.
+        /* input check */
+
+        if (!_query || (!_query.db || !_query.coll) || !_item) {
+            return null;
+        }
+
+        /* get the db columns */
+
+        const _columns_json = db_document.hades_db_document.get_collection_json(`${_query.db}.${_query.coll}`);
+
+        const _item_key = Object.keys(_item);
+        const _columns_key = Object.keys(_columns_json);
+
+        /* reconstruct the item */
+
+        const pending_item = {};
+
+        for (let i = 0; i < _item_key.length; i++) {
+            const _key = _item_key[i];
+
+            // check item columns that in the db columns
+            if (!_columns_key.includes(_key)) {
+                continue;
+            }
+
+            if (_columns_json[_key].editable) {
+                const _item_col = _item[_key];
+                if (_columns_json[_key].datatype === 'number') {
+                    // remove " & ,
+                    const _num = _item_col.replace(/["',]/g, '');
+
+                    pending_item[_key] = _num;
+                } else {
+                    // default
+
+                    pending_item[_key] = _item_col;
+                }
+            }
+        }
 
         // add some content that auto gen. in the backend
-        _item.create_date = new Date();
-        _item.edit_date = new Date();
+        pending_item.create_date = new Date();
+        pending_item.edit_date = new Date();
+
+        // TODO check potential dulp.
 
         // do db create
-        const _res = await db_server.db_create(_query.db, _query.coll, _item);
+        const _res = await db_server.db_create(_query.db, _query.coll, pending_item);
 
         if (_res && _res['insertedId']) {
             _state = true;
