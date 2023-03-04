@@ -32,6 +32,149 @@
 
   </div>
 
+  <div class="modal fade" ref="modal_uploaded_table" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title col-11">
+            <div class="d-flex justify-content-between">
+
+              <div class="text-capitalize">
+                {{ mode }} mode
+              </div>
+
+            </div>
+          </h5>
+
+          <button type="button" class="btn-close" aria-label="Close" @click="open_stage(0)"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container-fluid">
+
+            <div class="row justify-content-center">
+              <div class="col-md-8">
+                <div class="d-flex justify-content-between">
+
+                  <div class="btn-group" role="group">
+
+                    <button type="button" class="btn btn-primary" title="view items" @click="view_pending">
+                      <font-awesome-icon icon="fa-solid fa-eye" />
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" title="check all item" @click="item_select('all')">
+                      <font-awesome-icon icon="fa-solid fa-check" />
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" title="uncheck all item" @click="item_select('none')">
+                      <font-awesome-icon icon="fa-solid fa-xmark" />
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" disabled v-if="upload_list">
+                      {{ upload_list.length }}
+                    </button>
+
+                  </div>
+
+                  <div class="btn-group" role="group">
+
+                    <button type="button" class="btn btn-primary" @click=";">Upload</button>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="container table-responsive">
+              <div class="my_modal_table">
+
+                <div class="row">
+                  <div class="col-12">
+
+                    <table class="table table-hover w-auto">
+
+                      <thead>
+                        <tr>
+
+                          <th>
+                            Id
+                          </th>
+
+                          <th>
+
+                            Check
+
+                          </th>
+
+                          <th v-for="(column, key) in get_show_columns" :key="key" style="white-space: nowrap">
+
+                            {{ column.col_name.value }}
+
+                          </th>
+
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr v-for="(row, i_key) in pending" :key="i_key">
+
+                          <td>
+                            {{ i_key + 1 }}
+                          </td>
+
+                          <td>
+                            <div v-if="!upload_list.includes(i_key + 1)">
+
+                              <button type="button" class="btn btn-secondary btn-sm" title="check current item"
+                                @click="item_select(i_key + 1)">
+                                <font-awesome-icon icon="fa-solid fa-plus" />
+                              </button>
+
+                            </div>
+                            <div v-else>
+
+                              <button type="button" class="btn btn-secondary btn-sm" title="uncheck current item"
+                                @click="item_select(i_key + 1)">
+                                <font-awesome-icon icon="fa-solid fa-minus" />
+                              </button>
+
+                            </div>
+
+                          </td>
+
+                          <td v-for="(column, j_key) in get_show_columns" :key="j_key">
+
+                            <div v-if="column.datatype.value === 'date'">
+                              {{ date_convert(row[column.col_name.value]) }}
+                            </div>
+                            <div v-else>
+                              {{ row[column.col_name.value] }}
+                            </div>
+
+                          </td>
+
+                        </tr>
+                      </tbody>
+
+                    </table>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
   <div class="modal fade" ref="modal_upload_check" tabindex="-1" aria-hidden="true">
 
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
@@ -78,7 +221,7 @@
             </div>
           </h5>
 
-          <button type="button" class="btn-close" aria-label="Close" @click="open_stage(0)"></button>
+          <button type="button" class="btn-close" aria-label="Close" @click="open_stage(1)"></button>
         </div>
 
         <div class="modal-body">
@@ -95,7 +238,10 @@
 
                 <div v-if="pending">
 
-                  <p v-if="column.datatype.value === 'date'">
+                  <p v-if="!column.editable.value">
+                    {{ column.col_name.value }} will auto generate.
+                  </p>
+                  <p v-else-if="column.datatype.value === 'date'">
                     {{ date_convert(pending[pending_iter][column.col_name.value]) }}
                   </p>
                   <p v-else>
@@ -113,13 +259,6 @@
             </div>
 
           </div>
-        </div>
-
-        <div class="modal-footer">
-
-          <button type="button" class="btn btn-secondary" @click="open_stage(0)">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="csv_upload">Confirm</button>
-
         </div>
 
       </div>
@@ -188,19 +327,39 @@ export default {
 
       return null;
     },
+    get_show_columns() {
+      const showable_columns = [];
+      const c_db_struct = this.$store.state.db_struct;
+
+      for (let i = 0; i < c_db_struct.columns.length; i++) {
+        const c_column = c_db_struct.columns[i];
+        if (c_column.showable.value && c_column.modal_showable.value) {
+          showable_columns.push(c_column);
+        }
+      }
+
+      return showable_columns;
+    },
   },
   methods: {
     open_stage(stage) {
       if (stage === 0) {
         this.the_modal.show();
+        this.the_modal_table.hide();
         this.the_modal_check.hide();
       } else if (stage === 1) {
         this.the_modal.hide();
+        this.the_modal_table.show();
+        this.the_modal_check.hide();
+      } else if (stage === 2) {
+        this.the_modal.hide();
+        this.the_modal_table.hide();
         this.the_modal_check.show();
       }
     },
     close_stage() {
       this.the_modal.hide();
+      this.the_modal_table.hide();
       this.the_modal_check.hide();
 
       this.$emit("cb_set_mode", null);
@@ -361,12 +520,43 @@ export default {
         this.c_input = 1;
         this.pending_max = this.pending.length;
 
+        this.upload_list = [];
+
         this.open_stage(1);
       } catch (error) {
         console.log(error);
 
         this.close_stage();
       }
+    },
+    item_select(mode) {
+      if (mode === 'none') {
+        this.upload_list = [];
+
+      } else if (mode === 'all') {
+        this.upload_list = [];
+
+        for (let i = 0; i < this.pending_max; i++) {
+          this.upload_list.push(i + 1);
+        }
+      } else {
+        const idx = Number(mode);
+
+        if (this.upload_list.includes(idx)) {
+          // uncheck
+
+          this.upload_list = this.upload_list.filter(function (item) {
+            return item !== idx;
+          });
+        } else {
+          // check
+
+          this.upload_list.push(idx);
+        }
+      }
+    },
+    view_pending() {
+      this.open_stage(2);
     },
     async csv_upload() {
       try {
@@ -390,6 +580,11 @@ export default {
       keyboard: false,
     });
 
+    this.the_modal_table = new Modal(this.$refs.modal_uploaded_table, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+
     this.the_modal_check = new Modal(this.$refs.modal_upload_check, {
       backdrop: 'static',
       keyboard: false,
@@ -402,4 +597,14 @@ export default {
   },
 }
 </script>
-  
+
+<style>
+.my_modal_table {
+  /* display: inline-block; */
+  /* align-items: center; */
+
+  display: flex;
+  justify-content: center;
+  height: 70vh;
+}
+</style>
