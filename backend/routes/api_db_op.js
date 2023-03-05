@@ -17,53 +17,92 @@ const get_object_id = (c_id) => {
     return new object_id(c_id);
 };
 
+const item_worker = (mode, _query, _item) => {
+    /* input check */
+
+    if (!mode || !_query || (!_query.db || !_query.coll) || !_item) {
+        return null;
+    }
+
+    /* get the db columns */
+
+    const _columns_json = db_document.hades_db_document.get_collection_json(`${_query.db}.${_query.coll}`);
+
+    const _item_key = Object.keys(_item);
+    const _columns_key = Object.keys(_columns_json);
+
+    /* reconstruct the item */
+
+    const pending_item = {};
+
+    for (let i = 0; i < _item_key.length; i++) {
+        const _key = _item_key[i];
+
+        // check item columns that in the db columns
+        if (!_columns_key.includes(_key)) {
+            continue;
+        }
+
+        if (_columns_json[_key].editable) {
+            const _item_col = _item[_key];
+            if (_columns_json[_key].datatype === 'number') {
+                // remove " & ,
+                const _num = _item_col.replace(/["',]/g, '');
+
+                pending_item[_key] = _num;
+            } else {
+                // default
+
+                pending_item[_key] = _item_col;
+            }
+        }
+    }
+
+    if (pending_item === {}) {
+        console.log(`Error | no match column, given: ${_item_key} and db need: ${_columns_key}.`);
+
+        return null;
+    }
+
+    /* auto generate from the backend */
+
+    if (mode === 'create') {
+        pending_item.create_date = new Date();
+        pending_item.edit_date = new Date();
+    } else if (mode === 'update') {
+        pending_item.edit_date = new Date();
+    } else {
+        console.log(`Error | given mode: ${mode} not found`);
+
+        return null;
+    }
+
+    return pending_item;
+};
+
+/**
+ * 
+ * @param {*} _query 
+ * @param {*} _item 
+ * @returns
+ *     -2: catch error \
+ *     -1: item_worker reconstruct fail \
+ *      0: create failed \
+ *      1: create successfully \
+ *      2: create hit (aka. update) need user confirm
+ * 
+ */
 const single_create_worker = async (_query, _item) => {
     var _state = null;
 
     try {
-        /* input check */
+        const pending_item = item_worker('create', _query, _item);
 
-        if (!_query || (!_query.db || !_query.coll) || !_item) {
-            return null;
+        if (!pending_item) {
+            _state = -1;
+
+            return; // jump to finally-block
         }
-
-        /* get the db columns */
-
-        const _columns_json = db_document.hades_db_document.get_collection_json(`${_query.db}.${_query.coll}`);
-
-        const _item_key = Object.keys(_item);
-        const _columns_key = Object.keys(_columns_json);
-
-        /* reconstruct the item */
-
-        const pending_item = {};
-
-        for (let i = 0; i < _item_key.length; i++) {
-            const _key = _item_key[i];
-
-            // check item columns that in the db columns
-            if (!_columns_key.includes(_key)) {
-                continue;
-            }
-
-            if (_columns_json[_key].editable) {
-                const _item_col = _item[_key];
-                if (_columns_json[_key].datatype === 'number') {
-                    // remove " & ,
-                    const _num = _item_col.replace(/["',]/g, '');
-
-                    pending_item[_key] = _num;
-                } else {
-                    // default
-
-                    pending_item[_key] = _item_col;
-                }
-            }
-        }
-
-        // add some content that auto gen. in the backend
-        pending_item.create_date = new Date();
-        pending_item.edit_date = new Date();
 
         // TODO check potential dulp.
 
@@ -71,18 +110,18 @@ const single_create_worker = async (_query, _item) => {
         const _res = await db_server.db_create(_query.db, _query.coll, pending_item);
 
         if (_res && _res['insertedId']) {
-            _state = true;
+            _state = 1;
         } else {
-            _state = false;
+            _state = 0;
         }
     } catch (err) {
         console.log(err);
 
-        _state = false;
+        _state = -2;
     } finally {
         return _state;
     }
-}
+};
 
 /* router */
 
