@@ -17,7 +17,7 @@ const get_object_id = (c_id) => {
     return new object_id(c_id);
 };
 
-const item_worker = (mode, _query, _item) => {
+const item_recon_worker = (mode, _query, _item) => {
     /* input check */
 
     if (!mode || !_query || (!_query.db || !_query.coll) || !_item) {
@@ -80,23 +80,84 @@ const item_worker = (mode, _query, _item) => {
     return pending_item;
 };
 
+const item_dupl_worker = (_query, _item) => {
+    /* input check */
+
+    if (!_query || (!_query.db || !_query.coll) || !_item) {
+        return null;
+    }
+
+    /* get the db columns */
+
+    const _columns_json = db_document.hades_db_document.get_collection_duplicated_check_json(`${_query.db}.${_query.coll}`);
+
+    const _item_key = Object.keys(_item);
+    const _columns_key = Object.keys(_columns_json);
+
+    /* reconstruct the item */
+
+    const pending_item = {};
+
+    for (let i = 0; i < _item_key.length; i++) {
+        const _key = _item_key[i];
+
+        // check item columns that in the db columns
+        if (!_columns_key.includes(_key)) {
+            continue;
+        }
+
+        pending_item[_key] = _item[_key];
+    }
+
+    return pending_item;
+};
+
+const single_dupl_check_worker = async (_query, _item) => {
+    var _state = null;
+
+    /* read if duplicate by given constraint */
+
+    const pending_item = item_dupl_worker(_query, _item);
+    const db_res = await db_server.db_read(_query.db, _query.coll, pending_item);
+
+    /* check read result */
+
+    if (!db_res || db_res.length === 0) {
+        // no duplicated item has been found
+
+        _state = false;
+    } else if (db_res.length >= 1) {
+        if (db_res.length !== 1) {
+            // multi. duplicated items have been found
+
+            console.log('Error | multi. duplicated item has been found');
+        }
+
+        // duplicated item(s) has (have) been found
+
+        _state = db_res[0]._id;
+    }
+
+    return _state;
+};
+
 /**
  * 
  * @param {*} _query 
  * @param {*} _item 
  * @returns
  *     -2: catch error \
- *     -1: item_worker reconstruct fail \
+ *     -1: item_recon_worker reconstruct fail \
  *      0: create failed \
  *      1: create successfully \
- *      2: create hit (aka. update) need user confirm
+ *    _id: create hit (aka. update) need user confirm (return a hitted _id)
  * 
  */
 const single_create_worker = async (_query, _item) => {
     var _state = null;
 
     try {
-        const pending_item = item_worker('create', _query, _item);
+        const pending_item = item_recon_worker('create', _query, _item);
 
         if (!pending_item) {
             _state = -1;
@@ -104,16 +165,28 @@ const single_create_worker = async (_query, _item) => {
             return; // jump to finally-block
         }
 
-        // TODO check potential dulp.
+        /* check potential duplicated */
 
-        // do db create
-        const _res = await db_server.db_create(_query.db, _query.coll, pending_item);
+        const _dupl = await single_dupl_check_worker(_query, _item);
 
-        if (_res && _res['insertedId']) {
-            _state = 1;
+        if (!_dupl) {
+            /* no duplicated */
+
+            // do db create
+            const _res = await db_server.db_create(_query.db, _query.coll, pending_item);
+
+            if (_res && _res['insertedId']) {
+                _state = 1;
+            } else {
+                _state = 0;
+            }
+
         } else {
-            _state = 0;
+            /* duplicated */
+
+            _state = _dupl;
         }
+
     } catch (err) {
         console.log(err);
 
@@ -169,10 +242,8 @@ router.post('/update', auth.session_verify, async function (req, res, next) {
 
     const c_id = get_object_id(req.body._id[0]);
 
-    const c_content = req.body.item;
-    c_content.edit_date = new Date();
-
-    const c_item = { $set: c_content };
+    const _set = item_recon_worker('update', req.query, req.body.item);
+    const c_item = { $set: _set };
 
     const db_res = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
     res.json({ 'message': db_res });
@@ -206,12 +277,18 @@ router.post('/upload', auth.session_verify, file_multipart.upload.single(), asyn
     var detail = '';
 
     try {
+        console.log(req.body);
+
         /* upload selected content as json */
 
         const _json = JSON.parse(req.body['json']);
         const _json_keys = Object.keys(_json);
 
         const _res = [];
+
+        // result
+        var _successfully = 0;
+        var _failed = 0;
 
         for (let i = 0; i < _json_keys.length; i++) {
             const _key = _json_keys[i];
@@ -220,10 +297,18 @@ router.post('/upload', auth.session_verify, file_multipart.upload.single(), asyn
             // do create
             const db_res = await single_create_worker(req.query, _item);
 
-            _res.push(db_res);
+            if (typeof db_res === 'number') {
+                if (db_res === 1) {
+                    _successfully += 1;
+                } else {
+                    _failed += 1;
+                }
+            } else {
+                _res.push({ 'key': _key, 'id': db_res });
+            }
         }
 
-        log = 'File uploaded successfully!';
+        log = `File uploaded | ${_successfully} successfully and ${_failed} failed and ${_res.length} duplicated!`;
         detail = _res;
     } catch (error) {
         detail = error;
