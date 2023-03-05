@@ -80,8 +80,10 @@
 
                   <div class="btn-group" role="group">
 
-                    <button type="button" class="btn btn-primary" :disabled="!upload_list || upload_list.length === 0"
-                      @click="csv_upload">Upload</button>
+                    <button type="button" class="btn btn-primary" v-if="!dupl_stage"
+                      :disabled="!upload_list || upload_list.length === 0" @click="csv_upload">Upload</button>
+                    <button type="button" class="btn btn-primary" v-else
+                      :disabled="!upload_list || upload_list.length === 0" @click="csv_upload">Upload & Update</button>
 
                   </div>
 
