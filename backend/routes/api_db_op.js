@@ -196,6 +196,49 @@ const single_create_worker = async (_query, _item) => {
     }
 };
 
+/**
+ * 
+ * @param {*} _query 
+ * @param {*} _item 
+ * @returns
+ *     -2: catch error \
+ *     -1: item_recon_worker reconstruct fail \
+ *      0: update failed \
+ *      1: update successfully \
+ * 
+ */
+const single_update_worker = async (_query, _id, _item) => {
+    var _state = null;
+
+    try {
+        const pending_item = item_recon_worker('update', _query, _item);
+
+        if (!pending_item) {
+            _state = -1;
+
+            return; // jump to finally-block
+        }
+
+        const c_id = get_object_id(_id);
+        const c_item = { $set: pending_item };
+
+        // do db update
+        const _res = await db_server.db_update(_query.db, _query.coll, c_id, c_item);
+
+        if (_res) {
+            _state = 1;
+        } else {
+            _state = 0;
+        }
+    } catch (err) {
+        console.log(err);
+
+        _state = -2;
+    } finally {
+        return _state;
+    }
+};
+
 /* router */
 
 router.get('/', async function (req, res, next) {
@@ -240,12 +283,8 @@ router.post('/update', auth.session_verify, async function (req, res, next) {
 
     console.log(req.body);
 
-    const c_id = get_object_id(req.body._id[0]);
+    const db_res = await single_update_worker(req.query, req.body._id[0], req.body.item);
 
-    const _set = item_recon_worker('update', req.query, req.body.item);
-    const c_item = { $set: _set };
-
-    const db_res = await db_server.db_update(req.query.db, req.query.coll, c_id, c_item);
     res.json({ 'message': db_res });
 });
 
@@ -269,8 +308,7 @@ router.post('/delete', auth.session_verify, async function (req, res, next) {
 
 router.post('/upload', auth.session_verify, file_multipart.upload.single(), async function (req, res, next) {
     if (!res.locals.state_verify) {
-        // TODO activate session_verify
-        // return res.status(404).send({ log: ['Please login first!'] });
+        return res.status(404).send({ log: ['Please login first!'] });
     }
 
     var log = "upload";
@@ -284,6 +322,11 @@ router.post('/upload', auth.session_verify, file_multipart.upload.single(), asyn
         const _json = JSON.parse(req.body['json']);
         const _json_keys = Object.keys(_json);
 
+        var _check = false;
+        if (req.body['check'] === 'true') {
+            _check = true;
+        }
+
         const _res = [];
 
         // result
@@ -294,8 +337,16 @@ router.post('/upload', auth.session_verify, file_multipart.upload.single(), asyn
             const _key = _json_keys[i];
             const _item = _json[_key];
 
-            // do create
-            const db_res = await single_create_worker(req.query, _item);
+            var db_res = null;
+            if (_check) {
+                // do update
+
+                db_res = await single_update_worker(req.query, _item['dupl_id'], _item);
+            } else {
+                // do create
+
+                db_res = await single_create_worker(req.query, _item);
+            }
 
             if (typeof db_res === 'number') {
                 if (db_res === 1) {

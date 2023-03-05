@@ -104,6 +104,10 @@
                             Id
                           </th>
 
+                          <th v-if="dupl_stage">
+                            Duplicated _id
+                          </th>
+
                           <th>
 
                             Check
@@ -126,7 +130,12 @@
                             {{ i_key + 1 }}
                           </td>
 
+                          <td v-if="dupl_stage">
+                            {{ row['dupl_id'] }}
+                          </td>
+
                           <td>
+
                             <div v-if="!upload_list.includes(i_key + 1)">
 
                               <button type="button" class="btn btn-secondary btn-sm" title="check current item"
@@ -227,17 +236,62 @@
 
         <div class="modal-body">
           <div class="container-fluid">
+            <div class="d-flex gap-3">
+              <div class="col">
+                <p class="text-end fw-bold">
+                  Column Name
+                </p>
+              </div>
+
+              <div class="vr" v-if="dupl_stage"></div>
+
+              <div class="col" v-if="dupl_stage">
+                <p>
+                  Dulpicated Item (db)
+                </p>
+              </div>
+
+              <div class="vr"></div>
+
+              <div class="col">
+                <p>
+                  Update Item (new)
+                </p>
+              </div>
+            </div>
 
             <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
               <div class="col">
                 <p class="text-end fw-bold">{{ column.col_name.value }}</p>
               </div>
 
+              <div class="vr" v-if="dupl_stage"></div>
+
+              <div class="col" v-if="dupl_stage">
+
+                <div v-if="duplicated && duplicated.length > pending_iter">
+
+                  <p v-if="column.datatype.value === 'date'">
+                    {{ date_convert(duplicated[pending_iter][column.col_name.value]) }}
+                  </p>
+                  <p v-else>
+                    {{ duplicated[pending_iter][column.col_name.value] }}
+                  </p>
+
+                </div>
+                <div v-else>
+
+                  <p>Error</p>
+
+                </div>
+
+              </div>
+
               <div class="vr"></div>
 
               <div class="col">
 
-                <div v-if="pending">
+                <div v-if="pending && pending.length > pending_iter">
 
                   <p v-if="!column.editable.value">
                     {{ column.col_name.value }} will auto generate.
@@ -283,7 +337,11 @@ export default {
     return {
       // modal
       the_modal: null,
+      the_modal_table: null,
       the_modal_check: null,
+
+      // stage
+      dupl_stage: false,
 
       // file
       file: null,
@@ -295,6 +353,9 @@ export default {
       // pending
       pending_max: 1,
       pending: null,
+
+      // duplicated
+      duplicated: null,
 
       // upload
       upload_list: null,
@@ -345,6 +406,8 @@ export default {
   methods: {
     open_stage(stage) {
       if (stage === 0) {
+        this.dupl_stage = false;
+
         this.the_modal.show();
         this.the_modal_table.hide();
         this.the_modal_check.hide();
@@ -556,9 +619,57 @@ export default {
         }
       }
     },
+    async update_pending(_update) {
+      try {
+        const _update_duplicated = []; // in the db
+        const _update_pending = []; // new
+
+        for (let i = 0; i < _update.length; i++) {
+          const _idx = _update[i]['key'] - 1; // the idx
+          const _id = _update[i]['id']; // the dupl_id
+
+          const c_pending = this.pending[_idx];
+          c_pending['dupl_id'] = _id;
+
+          const c_duplicated = (await this.$store.state.db_connection.read({ '_id': [_id] })).message[0];
+
+          _update_duplicated.push(c_duplicated);
+          _update_pending.push(c_pending);
+        }
+
+        // update the pending
+        this.duplicated = _update_duplicated;
+        this.pending = _update_pending;
+
+        if (!this.pending || this.pending.length == 0) {
+          // TODO display on log
+          throw new Error('Error | file can not be read!');
+        }
+
+        // reset
+        this.c_input = 1;
+        this.pending_max = this.pending.length;
+
+        this.upload_list = [];
+      } catch (error) {
+        console.log(error);
+
+        this.pending = [];
+
+        // reset
+        this.c_input = 1;
+        this.pending_max = 1;
+
+        this.upload_list = [];
+      }
+
+      return;
+    },
     async csv_upload() {
       try {
         if (!this.pending || !this.upload_list || this.upload_list.length === 0) {
+
+          this.close_stage();
           return;
         }
 
@@ -578,14 +689,26 @@ export default {
         }
 
         form_data.append('json', JSON.stringify(_upload_json));
+        form_data.append('check', this.dupl_stage);
 
         const res = await this.$store.state.db_connection.upload(form_data);
-        console.log(res);
 
+        if (res && res['detail'].length !== 0) {
+          // got duplicated item
+
+          this.update_pending(res['detail']);
+
+          this.dupl_stage = true;
+          this.open_stage(1);
+        } else {
+          // no duplicated item
+
+          this.close_stage();
+        }
       } catch (error) {
         console.log(error);
 
-        // this.close_stage();
+        this.close_stage();
       }
     },
   },
