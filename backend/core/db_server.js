@@ -11,7 +11,7 @@ const auth_uri = `mongodb://${USERNAME}:${PASSWORD}@${HOST}:${PORT}`;
 const client = new MongoClient(uri);
 const auth_client = new MongoClient(auth_uri);
 
-const pass_log = ['db.log'];
+const pass_log = ['db.log', 'Users.user'];
 
 async function db_create(db_name, coll_name, item) {
     var c_client = new MongoClient(auth_uri);
