@@ -1,10 +1,5 @@
 <template>
-  <div>
-
-    <!-- TODO not showing this -->
-    <p>{{ ids }}</p>
-
-  </div>
+  <p></p>
 
   <Teleport to="body" v-if="mode">
 
@@ -157,7 +152,9 @@
               <tr>
 
                 <th>
-                  #
+                  <div>
+                    <input type="checkbox" v-model="select_all">
+                  </div>
                 </th>
 
                 <th v-for="(column, key) in get_show_columns" :key="key" style="white-space: nowrap">
@@ -283,6 +280,24 @@ export default {
       }
 
       return showable_columns;
+    },
+    select_all: {
+      get: function () {
+        return (this.db_rows && this.db_rows.length !== 0) ? this.ids.length == this.db_rows.length : false;
+      },
+      set: function (_checked) {
+        const _ids = [];
+
+        if (_checked) {
+          for (let i = 0; i < this.db_rows.length; i++) {
+            const c_row = this.db_rows[i];
+
+            _ids.push(c_row['_id']);
+          }
+        }
+
+        this.ids = _ids;
+      }
     },
   },
   watch: {
