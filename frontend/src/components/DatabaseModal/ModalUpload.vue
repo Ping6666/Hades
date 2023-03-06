@@ -490,7 +490,8 @@ export default {
 
         for (let i = 0; i < _text.length; i++) {
           // const c_text = _text[i].split(',');
-          const c_text = _text[i].match(/({.*?}|'.*?'|".*?"|[^"',{}]+|(?<=^|,{1}))(?=,|$)/g);
+          // const c_text = _text[i].match(/({.*?}|'.*?'|".*?"|[^"',{}]+|(?<=^|,{1}))(?=,|$)/g); // may got some BUG here
+          const c_text = _text[i].match(/({.*?}|'.*?'|".*?"|[^"',]+|(?<=^|,{1}))(?=,|$)/g);
 
           if (!c_text) {
             continue;
