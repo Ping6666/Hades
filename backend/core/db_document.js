@@ -107,6 +107,11 @@ hades_db_document.add_column('db.announcement', 'edit_date', 'date', false, fals
 
 hades_db_document.set_collection('db.equipment');
 
+hades_db_document.add_column('db.equipment', '超過年限日期', 'date', false, true, false, false);
+hades_db_document.add_column('db.equipment', '實際位置', 'string', true, true, false, false);
+hades_db_document.add_column('db.equipment', '照片', 'picture', true, false, false, false);
+hades_db_document.add_column('db.equipment', '其他備註', 'string', true, true, false, false);
+
 hades_db_document.add_column('db.equipment', '財物編號', 'number', true, true, true, true);
 hades_db_document.add_column('db.equipment', '校號', 'number', true, true, true, true);
 hades_db_document.add_column('db.equipment', '附件', 'number', true, true, true, true);
@@ -115,7 +120,7 @@ hades_db_document.add_column('db.equipment', '廠牌', 'string', true, true, fal
 hades_db_document.add_column('db.equipment', '型式', 'string', true, true, false, false);
 hades_db_document.add_column('db.equipment', '單價', 'number', true, true, false, false);
 hades_db_document.add_column('db.equipment', '增加單號', 'string', true, true, false, false);
-hades_db_document.add_column('db.equipment', '取得日期', 'string', true, true, false, false);
+hades_db_document.add_column('db.equipment', '取得日期', 'date', true, true, false, false);
 hades_db_document.add_column('db.equipment', '年限', 'number', true, true, false, false);
 hades_db_document.add_column('db.equipment', '管理人', 'string', true, true, false, false);
 hades_db_document.add_column('db.equipment', '存置地點', 'string', true, true, false, false);
