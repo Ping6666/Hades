@@ -83,7 +83,8 @@
                     <button type="button" class="btn btn-primary" v-if="!dupl_stage"
                       :disabled="!upload_list || upload_list.length === 0" @click="csv_upload">Upload</button>
                     <button type="button" class="btn btn-primary" v-else
-                      :disabled="!upload_list || upload_list.length === 0" @click="csv_upload">Upload & Update</button>
+                      :disabled="((!duplicated || duplicated.length !== pending.length) || (!upload_list || upload_list.length === 0))"
+                      @click="csv_upload">Upload & Update</button>
 
                   </div>
 
@@ -512,6 +513,12 @@ export default {
               throw new Error('Error | csv_parser not getting header');
             }
 
+            if (c_text.length === 0 || (c_text.length === 1 && (!c_text[0] || c_text[0] === ''))) {
+              // no content
+
+              continue;
+            }
+
             for (let j = 0; ((j < header.length) && (j < c_text.length)); j++) {
               const _colname = header[j];
               const _colvalue = c_text[j];
@@ -519,7 +526,9 @@ export default {
               _row[_colname] = _colvalue;
             }
 
-            rows.push(_row);
+            if (_row && _row !== {}) {
+              rows.push(_row);
+            }
           }
         }
 
@@ -695,7 +704,7 @@ export default {
 
         const res = await this.$store.state.db_connection.upload(form_data);
 
-        if (res && res['detail'].length !== 0) {
+        if (res && res['detail'] && res['detail'].length !== 0) {
           // got duplicated item
 
           this.update_pending(res['detail']);
