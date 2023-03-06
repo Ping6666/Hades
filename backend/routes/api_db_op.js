@@ -13,6 +13,16 @@ const file_multipart = require('../middleware/file_multipart');
 
 /* core worker */
 
+const json_is_empty = (obj) => {
+    for (var prop in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+            return false;
+        }
+    }
+
+    return JSON.stringify(obj) === JSON.stringify({});
+};
+
 const get_object_id = (c_id) => {
     return new object_id(c_id);
 };
@@ -58,7 +68,7 @@ const item_recon_worker = (mode, _query, _item) => {
         }
     }
 
-    if (pending_item === {}) {
+    if (!pending_item || json_is_empty(pending_item)) {
         console.log(`Error | no match column, given: ${_item_key} and db need: ${_columns_key}.`);
 
         return null;
@@ -118,24 +128,31 @@ const single_dupl_check_worker = async (_query, _item) => {
     /* read if duplicate by given constraint */
 
     const pending_item = item_dupl_worker(_query, _item);
-    const db_res = await db_server.db_read(_query.db, _query.coll, pending_item);
 
-    /* check read result */
-
-    if (!db_res || db_res.length === 0) {
+    if (!pending_item || json_is_empty(pending_item)) {
         // no duplicated item has been found
 
         _state = false;
-    } else if (db_res.length >= 1) {
-        if (db_res.length !== 1) {
-            // multi. duplicated items have been found
+    } else {
+        const db_res = await db_server.db_read(_query.db, _query.coll, pending_item);
 
-            console.log('Error | multi. duplicated item has been found');
+        /* check read result */
+
+        if (!db_res || db_res.length === 0) {
+            // no duplicated item has been found
+
+            _state = false;
+        } else if (db_res.length >= 1) {
+            if (db_res.length !== 1) {
+                // multi. duplicated items have been found
+
+                console.log('Error | multi. duplicated item has been found');
+            }
+
+            // duplicated item(s) has (have) been found
+
+            _state = db_res[0]._id;
         }
-
-        // duplicated item(s) has (have) been found
-
-        _state = db_res[0]._id;
     }
 
     return _state;

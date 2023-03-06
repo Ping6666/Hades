@@ -11,6 +11,8 @@ const auth_uri = `mongodb://${USERNAME}:${PASSWORD}@${HOST}:${PORT}`;
 const client = new MongoClient(uri);
 const auth_client = new MongoClient(auth_uri);
 
+const pass_log = ['db.log'];
+
 async function db_create(db_name, coll_name, item) {
     var c_client = new MongoClient(auth_uri);
     var result = 'db_create fail';
@@ -21,6 +23,24 @@ async function db_create(db_name, coll_name, item) {
 
         result = await collection.insertOne(item);
         c_client.close();
+
+        /* backup into log */
+
+        if (!pass_log.includes(`${db_name}.${coll_name}`)) {
+            const _item = {};
+            _item['db_name'] = db_name;
+            _item['coll_name'] = coll_name;
+            _item['CRUD'] = 'create';
+            _item['content'] = JSON.stringify(item);
+
+            _item.create_date = new Date();
+            _item.edit_date = new Date();
+
+            /* Warning */
+            // recursion end condition need to be meet
+            this.db_create('db', 'log', _item);
+        }
+
     } catch (error) {
         console.log(error);
     } finally {
@@ -38,6 +58,9 @@ async function db_read(db_name, coll_name, item) {
 
         result = await collection.find(item).toArray();
         c_client.close();
+
+        /* no need to backup into log */
+
     } catch (error) {
         console.log(error);
     } finally {
@@ -55,6 +78,24 @@ async function db_update(db_name, coll_name, id, item) {
 
         result = await collection.findOneAndUpdate({ _id: id }, item);
         c_client.close();
+
+        /* backup into log */
+
+        if (!pass_log.includes(`${db_name}.${coll_name}`)) {
+            const _item = {};
+            _item['db_name'] = db_name;
+            _item['coll_name'] = coll_name;
+            _item['CRUD'] = 'update';
+            _item['content'] = JSON.stringify({ '_id': id, 'item': item });
+
+            _item.create_date = new Date();
+            _item.edit_date = new Date();
+
+            /* Warning */
+            // recursion end condition need to be meet
+            this.db_create('db', 'log', _item);
+        }
+
     } catch (error) {
         console.log(error);
     } finally {
@@ -72,6 +113,24 @@ async function db_delete(db_name, coll_name, id) {
 
         result = await collection.findOneAndDelete({ _id: id });
         c_client.close();
+
+        /* backup into log */
+
+        if (!pass_log.includes(`${db_name}.${coll_name}`)) {
+            const _item = {};
+            _item['db_name'] = db_name;
+            _item['coll_name'] = coll_name;
+            _item['CRUD'] = 'delete';
+            _item['content'] = JSON.stringify({ '_id': id });
+
+            _item.create_date = new Date();
+            _item.edit_date = new Date();
+
+            /* Warning */
+            // recursion end condition need to be meet
+            this.db_create('db', 'log', _item);
+        }
+
     } catch (error) {
         console.log(error);
     } finally {
