@@ -137,10 +137,10 @@ hades_db_document.add_column('db.property', 'edit_date', 'date', false, false, f
 
 hades_db_document.set_collection('db.log');
 
-hades_db_document.add_column('db.log', 'db_name', 'string', true, true, true, false);
-hades_db_document.add_column('db.log', 'coll_name', 'string', true, true, true, false);
-hades_db_document.add_column('db.log', 'CRUD', 'string', true, true, true, false);
-hades_db_document.add_column('db.log', 'content', 'string', true, true, false, false);
+hades_db_document.add_column('db.log', 'db_name', 'string', true, true, true, true);
+hades_db_document.add_column('db.log', 'coll_name', 'string', true, true, true, true);
+hades_db_document.add_column('db.log', 'CRUD', 'string', true, true, true, true);
+hades_db_document.add_column('db.log', 'content', 'string', true, true, false, true);
 
 hades_db_document.add_column('db.log', 'create_date', 'date', false, false, false, false);
 hades_db_document.add_column('db.log', 'edit_date', 'date', false, false, false, false);
