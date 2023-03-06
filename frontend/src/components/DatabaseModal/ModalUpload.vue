@@ -6,7 +6,7 @@
 
         <div class="modal-header">
           <h5 class="modal-title col-11">
-            <div class="text-capitalize">
+            <div class="text-capitalize" style="white-space: nowrap">
               {{ mode }} mode
             </div>
           </h5>
@@ -41,7 +41,7 @@
           <h5 class="modal-title col-11">
             <div class="d-flex justify-content-between">
 
-              <div class="text-capitalize">
+              <div class="text-capitalize" style="white-space: nowrap">
                 {{ mode }} mode
               </div>
 
@@ -197,7 +197,7 @@
           <h5 class="modal-title col-11">
             <div class="d-flex justify-content-between">
 
-              <div class="text-capitalize">
+              <div class="text-capitalize" style="white-space: nowrap">
                 {{ mode }} mode
               </div>
 
@@ -240,15 +240,15 @@
         <div class="modal-body">
           <div class="container-fluid">
             <div class="d-flex gap-3">
-              <div class="col">
-                <p class="text-end fw-bold">
+              <div class="col-3">
+                <p class="text-end fw-bold" style="white-space: wrap">
                   Column Name
                 </p>
               </div>
 
               <div class="vr" v-if="dupl_stage"></div>
 
-              <div class="col" v-if="dupl_stage">
+              <div class="col-4" v-if="dupl_stage">
                 <p>
                   Dulpicated Item (db)
                 </p>
@@ -256,7 +256,7 @@
 
               <div class="vr"></div>
 
-              <div class="col">
+              <div class="col-4">
                 <p>
                   Update Item (new)
                 </p>
@@ -264,22 +264,29 @@
             </div>
 
             <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
-              <div class="col">
-                <p class="text-end fw-bold">{{ column.col_name.value }}</p>
+              <div class="col-3">
+                <p class="text-end fw-bold" style="white-space: wrap">{{ column.col_name.value }}</p>
               </div>
 
               <div class="vr" v-if="dupl_stage"></div>
 
-              <div class="col" v-if="dupl_stage">
+              <div class="col-4" v-if="dupl_stage">
 
                 <div v-if="duplicated && duplicated.length > pending_iter">
 
-                  <p v-if="column.datatype.value === 'date'">
-                    {{ date_convert(duplicated[pending_iter][column.col_name.value]) }}
-                  </p>
-                  <p v-else>
-                    {{ duplicated[pending_iter][column.col_name.value] }}
-                  </p>
+                  <div v-if="column.datatype.value === 'date'">
+
+                    <div v-if="column.col_name.value === '超過年限日期'">
+                      <p>{{ date_add_year(duplicated[pending_iter]['取得日期'], duplicated[pending_iter]['年限']) }}</p>
+                    </div>
+                    <div v-else>
+                      <p>{{ date_convert(duplicated[pending_iter][column.col_name.value]) }}</p>
+                    </div>
+
+                  </div>
+                  <div v-else>
+                    <p>{{ duplicated[pending_iter][column.col_name.value] }}</p>
+                  </div>
 
                 </div>
                 <div v-else>
@@ -292,7 +299,7 @@
 
               <div class="vr"></div>
 
-              <div class="col">
+              <div class="col-4">
 
                 <div v-if="pending && pending.length > pending_iter">
 
@@ -432,6 +439,11 @@ export default {
       this.$emit("cb_set_mode", null);
     },
     date_convert(str) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
       const c_date = new Date(str);
 
       return c_date.toLocaleString('en', {
@@ -446,6 +458,19 @@ export default {
         hour: '2-digit',
         minute: '2-digit',
       });
+    },
+    date_add_year(str, year) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
+      const c_date = new Date(str);
+      const _year = Number(year);
+
+      c_date.setFullYear(c_date.getFullYear() + _year);
+
+      return this.date_convert(c_date);
     },
     get_loop_number(n) {
       const l = this.pending_max;

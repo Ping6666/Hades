@@ -8,7 +8,7 @@
           <h5 class="modal-title col-11">
             <div class="d-flex justify-content-between">
 
-              <div class="text-capitalize">
+              <div class="text-capitalize" style="white-space: nowrap">
                 {{ mode }} mode
               </div>
 
@@ -47,13 +47,13 @@
           <div class="container-fluid">
 
             <div class="d-flex gap-3" v-for="(column, j_key) in $store.state.db_struct.columns" :key="j_key">
-              <div class="col">
-                <p class="text-end fw-bold" style="white-space: nowrap">{{ column.col_name.value }}</p>
+              <div class="col-5">
+                <p class="text-end fw-bold" style="white-space: wrap">{{ column.col_name.value }}</p>
               </div>
 
               <div class="vr"></div>
 
-              <div class="col">
+              <div class="col-5">
 
                 <div v-if="mode === 'create'">
                   <input v-if="column.editable.value" type="text" class="form-control"
@@ -71,12 +71,19 @@
                 <div v-else-if="((mode === 'read') || (mode === 'delete') ||
                   ((mode === 'update') && (!column.editable.value)))">
 
-                  <p v-if="column.datatype.value === 'date'">
-                    {{ date_convert(db_rows[column.col_name.value]) }}
-                  </p>
-                  <p v-else>
-                    {{ db_rows[column.col_name.value] }}
-                  </p>
+                  <div v-if="column.datatype.value === 'date'">
+
+                    <div v-if="column.col_name.value === '超過年限日期'">
+                      <p>{{ date_add_year(db_rows['取得日期'], db_rows['年限']) }}</p>
+                    </div>
+                    <div v-else>
+                      <p>{{ date_convert(db_rows[column.col_name.value]) }}</p>
+                    </div>
+
+                  </div>
+                  <div v-else>
+                    <p>{{ db_rows[column.col_name.value] }}</p>
+                  </div>
 
                 </div>
 
@@ -86,7 +93,7 @@
           </div>
         </div>
 
-        <div class="modal-footer">
+        <div class="modal-footer" v-if="mode === 'create' || mode === 'update' || mode === 'delete'">
 
           <button type="button" class="btn btn-primary" v-if="mode === 'create'" :disabled="cannot_save"
             @click="db_create">Save</button>
@@ -230,6 +237,11 @@ export default {
       this.$emit("cb_set_mode", null);
     },
     date_convert(str) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
       const c_date = new Date(str);
 
       return c_date.toLocaleString('en', {
@@ -244,6 +256,19 @@ export default {
         hour: '2-digit',
         minute: '2-digit',
       });
+    },
+    date_add_year(str, year) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
+      const c_date = new Date(str);
+      const _year = Number(year);
+
+      c_date.setFullYear(c_date.getFullYear() + _year);
+
+      return this.date_convert(c_date);
     },
     async db_create() {
       try {
