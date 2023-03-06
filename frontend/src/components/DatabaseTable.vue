@@ -14,7 +14,6 @@
     <ModalSetting v-else-if="mode === 'setting'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalFilter v-else-if="mode === 'filter'" :mode="mode" @cb_set_mode="set_mode" />
     <ModalUpload v-else-if="mode === 'upload'" :mode="mode" @cb_set_mode="set_mode" />
-    <ModalDownload v-else-if="mode === 'download'" :mode="mode" @cb_set_mode="set_mode" />
 
   </Teleport>
 
@@ -49,7 +48,7 @@
           <font-awesome-icon icon="fa-solid fa-upload" />
         </button>
 
-        <button type="button" class="btn btn-info" title="download" @click="set_mode('download')">
+        <button type="button" class="btn btn-info" title="download" @click="download">
           <font-awesome-icon icon="fa-solid fa-download" />
         </button>
 
@@ -117,7 +116,7 @@
             <font-awesome-icon icon="fa-solid fa-upload" /> Upload
           </a>
 
-          <a class="btn dropdown-item" @click="set_mode('download')">
+          <a class="btn dropdown-item" @click="download">
             <font-awesome-icon icon="fa-solid fa-download" /> Download
           </a>
 
@@ -204,7 +203,8 @@ import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
 import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
 import ModalFilter from '@/components/DatabaseModal/ModalFilter.vue'
 import ModalUpload from '@/components/DatabaseModal/ModalUpload.vue'
-import ModalDownload from '@/components/DatabaseModal/ModalDownload.vue'
+
+import FileSaver from 'file-saver';
 
 export default {
   name: 'DatabaseTable',
@@ -214,7 +214,6 @@ export default {
     ModalSetting,
     ModalFilter,
     ModalUpload,
-    ModalDownload,
   },
   data() {
     return {
@@ -355,7 +354,83 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    }
+    },
+    _db_to_str(_list_col, _list_json) {
+      var _str = '';
+
+      try {
+        if (!_list_col || !_list_json) {
+          return '';
+        }
+
+        // csv header
+        for (let j = 0; j < _list_col.length; j++) {
+          // loop: _list_col
+
+          const c_col = _list_col[j].col_name.value;
+
+          if (c_col) {
+            _str += String(c_col);
+          }
+
+          if (j !== _list_col.length - 1) {
+            _str += ','; // csv delimiter
+          }
+        }
+
+        _str += '\n'; // csv change line
+
+        // csv content
+        for (let i = 0; i < _list_json.length; i++) {
+          // loop: _list_json
+
+          const c_json = _list_json[i];
+
+          for (let j = 0; j < _list_col.length; j++) {
+            // loop: _list_col
+
+            const c_col = _list_col[j].col_name.value;
+
+            const _item = c_json[c_col];
+
+            if (_item) {
+              _str += String(_item);
+            }
+
+            if (j !== _list_col.length - 1) {
+              _str += ','; // csv delimiter
+            }
+          }
+
+          _str += '\n'; // csv change line
+        }
+
+        return String(_str);
+      } catch (err) {
+        console.log(err);
+
+        return '';
+      }
+
+    },
+    download() {
+      // since there is not possible to detect if a file was saved or not, or use any callback from FileSaver
+      // therefore, just remove the components ModalDownload.vue
+
+      // get content
+      // TODO change db_rows to sorted version
+      const _blob = this._db_to_str(this.get_show_columns, this.db_rows);
+
+      if (!_blob || _blob === '') {
+        return;
+      }
+
+      // move data to blob
+      const blob = new Blob([_blob], { type: "text/csv;charset=utf-8" });
+
+      // open download window
+      FileSaver.saveAs(blob, "download.csv");
+    },
   },
   beforeMount() {
     this.db_read();
