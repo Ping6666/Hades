@@ -175,7 +175,14 @@
 
                 <td v-for="(column, j_key) in get_show_columns" :key="j_key">
                   <div v-if="column.datatype.value === 'date'">
-                    {{ date_convert(row[column.col_name.value]) }}
+
+                    <div v-if="column.col_name.value === '超過年限日期'">
+                      {{ date_add_year(row['取得日期'], row['年限']) }}
+                    </div>
+                    <div v-else>
+                      {{ date_convert(row[column.col_name.value]) }}
+                    </div>
+
                   </div>
                   <div v-else>
                     {{ row[column.col_name.value] }}
@@ -345,6 +352,11 @@ export default {
       }
     },
     date_convert(str) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
       const c_date = new Date(str);
 
       return c_date.toLocaleString('en', {
@@ -359,6 +371,19 @@ export default {
         hour: '2-digit',
         minute: '2-digit',
       });
+    },
+    date_add_year(str, year) {
+      if (Number(str) === 'NaN') {
+        // make it parseable
+        str = "'" + str + "'";
+      }
+
+      const c_date = new Date(str);
+      const _year = Number(year);
+
+      c_date.setFullYear(c_date.getFullYear() + _year);
+
+      return this.date_convert(c_date);
     },
     async db_read() {
       try {
