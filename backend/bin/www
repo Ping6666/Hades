@@ -4,6 +4,12 @@
  * Module dependencies.
  */
 
+const dotenv = require('dotenv');
+dotenv.config();
+
+/* .env */
+// console.log(process.env);
+
 var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');

@@ -2,9 +2,10 @@
 
 ## env
 
-### docker-compose
+### `docker-compose.yml`
 
 ```
+## mode ##
 # development
 cp docker-compose.db.yml docker-compose.yml
 
@@ -12,9 +13,8 @@ cp docker-compose.db.yml docker-compose.yml
 cp docker-compose.all.yml docker-compose.yml
 ```
 
-### service in docker-compose
-
 ```
+## docker ##
 # (re)build the service
 sudo docker compose build
 
@@ -25,29 +25,91 @@ sudo docker compose up -d
 sudo docker compose down
 ```
 
-### service not in docker-compose (when development)
+#### development
 
 ```
+sudo docker compose up -d
+
 bash run.sh
+```
+
+#### production
+
+```
+sudo docker compose up -d
 ```
 
 ## config files
 
-### .env
+- `.env`
+- `backend/.env`
+
+### development
+
+> only nginx & mongo inside the docker (but frontend & backend are not)
+
+#### `.env`
 
 ```
+## nginx ##
+UPSTREAM_FRONTEND_IP=${UPSTREAM_FRONTEND_IP} # ip
+UPSTREAM_BACKEND_IP=${UPSTREAM_BACKEND_IP} # ip
+
+## mongo ##
 MONGO_USERNAME=${MONGO_USERNAME}
 MONGO_PASSWORD=${MONGO_PASSWORD}
 ```
 
-### backend/database/config.js
+#### `backend/.env`
 
 ```
-module.exports = {
-    USERNAME: `${MONGO_USERNAME}`,
-    PASSWORD: `${MONGO_PASSWORD}`,
-    HOST: '127.0.0.1', // only mongo inside the docker
-    // HOST: 'mongo', // both inside the docker
-    PORT: 27017,
-};
+## backend ##
+
+# express-session
+SESSION_SECRET=${SESSION_SECRET}
+
+# jsonwebtoken
+JWT_SECRET=${JWT_SECRET}
+
+# mongodb
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+
+MONGO_HOST=127.0.0.1
+MONGO_PORT=27017
+```
+
+### production
+
+> all service inside the docker
+
+#### `.env`
+
+```
+## nginx ##
+UPSTREAM_FRONTEND_IP=frontend
+UPSTREAM_BACKEND_IP=backend
+
+## mongo ##
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+```
+
+#### `backend/.env`
+
+```
+## backend ##
+
+# express-session
+SESSION_SECRET=${SESSION_SECRET}
+
+# jsonwebtoken
+JWT_SECRET=${JWT_SECRET}
+
+# mongodb
+MONGO_USERNAME=${MONGO_USERNAME}
+MONGO_PASSWORD=${MONGO_PASSWORD}
+
+MONGO_HOST=mongo
+MONGO_PORT=27017
 ```

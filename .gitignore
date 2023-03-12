@@ -2,12 +2,12 @@
 .env
 docker-compose.yml
 node_modules
+tmp
 
 ## database
 database/*
 
 ## backend
-backend/database/config.js
 
 ## frontend
 frontend/.DS_Store

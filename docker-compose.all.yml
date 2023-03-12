@@ -2,13 +2,27 @@ version: '3.1'
 
 services:
 
+  # nginx
+  nginx:
+    container_name: hades-nginx
+    build: ./nginx
+    restart: always
+    ports:
+      - 8888:80
+    environment:
+      - UPSTREAM_FRONTEND_IP=${UPSTREAM_FRONTEND_IP}
+      - UPSTREAM_BACKEND_IP=${UPSTREAM_BACKEND_IP}
+    networks:
+      - frontend
+      - backend
+
   # frontend
   frontend:
     container_name: hades-frontend
     build: ./frontend
     restart: always
-    ports:
-      - 8080:8080
+    expose:
+      - "8080"
     networks:
       - frontend
       - backend
@@ -18,8 +32,8 @@ services:
     container_name: hades-backend
     build: ./backend
     restart: always
-    ports:
-      - 3000:3000
+    expose:
+      - "3000"
     links:
       - mongo
     networks:
@@ -31,8 +45,8 @@ services:
     container_name: hades-mongo
     image: mongo
     restart: always
-    ports:
-      - 27017:27017
+    expose:
+      - "27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
