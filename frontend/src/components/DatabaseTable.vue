@@ -165,6 +165,8 @@ import ModalUpload from '@/components/DatabaseModal/ModalUpload.vue'
 
 import FileSaver from 'file-saver';
 
+import DataWorker from '@/javascript/DataWorker'
+
 export default {
   name: 'DatabaseTable',
   components: {
@@ -344,7 +346,27 @@ export default {
       this.update_table();
     },
     db_rows() {
+      const _col = this.$store.state.db_struct;
+
       this.hotSettings.data = this.db_rows;
+
+      for (let i = 0; i < this.hotSettings.data.length && i < this.db_rows.length; i++) {
+        const _raw = this.db_rows[i];
+        const _data = this.hotSettings.data[i];
+
+        for (let j = 0; j < _col.columns.length; j++) {
+          const c_col = _col.columns[j];
+
+          if (c_col.datatype.value === 'date') {
+
+            if (c_col.col_name.value === '超過年限日期') {
+              _data['超過年限日期'] = DataWorker.date_add_year(_raw['取得日期'], _raw['年限']);
+            } else {
+              _data[c_col.col_name.value] = DataWorker.date_convert(_raw[c_col.col_name.value]);
+            }
+          }
+        }
+      }
 
       this.update_table();
     },
@@ -376,40 +398,6 @@ export default {
       if (c_search_mode) {
         this.search_mode = c_search_mode;
       }
-    },
-    date_convert(str) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-
-      return c_date.toLocaleString('en', {
-        hour12: false,
-        // dateStyle: 'short',
-        // timeStyle: 'short',
-
-        weekday: 'short',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    },
-    date_add_year(str, year) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-      const _year = Number(year);
-
-      c_date.setFullYear(c_date.getFullYear() + _year);
-
-      return this.date_convert(c_date);
     },
     afterChangeVue(source, changes) {
       if (changes === 'edit') {

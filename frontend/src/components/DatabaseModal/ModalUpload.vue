@@ -161,7 +161,7 @@
                           <td v-for="(column, j_key) in get_show_columns" :key="j_key">
 
                             <div v-if="column.datatype.value === 'date'">
-                              {{ date_convert(row[column.col_name.value]) }}
+                              {{ _date_convert(row[column.col_name.value]) }}
                             </div>
                             <div v-else>
                               {{ row[column.col_name.value] }}
@@ -277,10 +277,10 @@
                   <div v-if="column.datatype.value === 'date'">
 
                     <div v-if="column.col_name.value === '超過年限日期'">
-                      <p>{{ date_add_year(duplicated[pending_iter]['取得日期'], duplicated[pending_iter]['年限']) }}</p>
+                      <p>{{ _date_add_year(duplicated[pending_iter]['取得日期'], duplicated[pending_iter]['年限']) }}</p>
                     </div>
                     <div v-else>
-                      <p>{{ date_convert(duplicated[pending_iter][column.col_name.value]) }}</p>
+                      <p>{{ _date_convert(duplicated[pending_iter][column.col_name.value]) }}</p>
                     </div>
 
                   </div>
@@ -307,7 +307,7 @@
                     {{ column.col_name.value }} will auto generate.
                   </p>
                   <p v-else-if="column.datatype.value === 'date'">
-                    {{ date_convert(pending[pending_iter][column.col_name.value]) }}
+                    {{ _date_convert(pending[pending_iter][column.col_name.value]) }}
                   </p>
                   <p v-else>
                     {{ pending[pending_iter][column.col_name.value] }}
@@ -334,6 +334,8 @@
 
 <script>
 import { Modal } from 'bootstrap';
+
+import DataWorker from '@/javascript/DataWorker'
 
 export default {
   name: 'ModalUpload',
@@ -438,39 +440,11 @@ export default {
 
       this.$emit("cb_set_mode", null);
     },
-    date_convert(str) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-
-      return c_date.toLocaleString('en', {
-        hour12: false,
-        // dateStyle: 'short',
-        // timeStyle: 'short',
-
-        weekday: 'short',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+    _date_convert(str) {
+      return DataWorker.date_convert(str);
     },
-    date_add_year(str, year) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-      const _year = Number(year);
-
-      c_date.setFullYear(c_date.getFullYear() + _year);
-
-      return this.date_convert(c_date);
+    _date_add_year(str, year) {
+      return DataWorker.date_add_year(str, year);
     },
     get_loop_number(n) {
       const l = this.pending_max;
