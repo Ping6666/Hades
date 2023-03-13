@@ -74,10 +74,10 @@
                   <div v-if="column.datatype.value === 'date'">
 
                     <div v-if="column.col_name.value === '超過年限日期'">
-                      <p>{{ date_add_year(db_rows['取得日期'], db_rows['年限']) }}</p>
+                      <p>{{ _date_add_year(db_rows['取得日期'], db_rows['年限']) }}</p>
                     </div>
                     <div v-else>
-                      <p>{{ date_convert(db_rows[column.col_name.value]) }}</p>
+                      <p>{{ _date_convert(db_rows[column.col_name.value]) }}</p>
                     </div>
 
                   </div>
@@ -143,6 +143,8 @@
 
 <script>
 import { Modal } from 'bootstrap';
+
+import DataWorker from '@/javascript/DataWorker'
 
 export default {
   name: 'ModalCRUD',
@@ -236,39 +238,11 @@ export default {
       this.clear_form();
       this.$emit("cb_set_mode", null);
     },
-    date_convert(str) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-
-      return c_date.toLocaleString('en', {
-        hour12: false,
-        // dateStyle: 'short',
-        // timeStyle: 'short',
-
-        weekday: 'short',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+    _date_convert(str) {
+      return DataWorker.date_convert(str);
     },
-    date_add_year(str, year) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-      const _year = Number(year);
-
-      c_date.setFullYear(c_date.getFullYear() + _year);
-
-      return this.date_convert(c_date);
+    _date_add_year(str, year) {
+      return DataWorker.date_add_year(str, year);
     },
     async db_create() {
       try {

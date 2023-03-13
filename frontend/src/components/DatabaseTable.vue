@@ -140,68 +140,23 @@
 
   <hr>
 
-  <div class="container table-responsive">
-    <div class="my_table">
+  <div class="container">
+    <div id="handsontable">
 
-      <div class="row">
-        <div class="col-12">
-
-          <table class="table table-bordered table-hover w-auto">
-
-            <thead>
-              <tr>
-
-                <th>
-                  <div>
-                    <input type="checkbox" v-model="select_all">
-                  </div>
-                </th>
-
-                <th v-for="(column, key) in get_show_columns" :key="key" style="white-space: nowrap">
-                  {{ column.col_name.value }}
-                </th>
-
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="(row, i_key) in db_rows" :key="i_key">
-
-                <td>
-                  <div>
-                    <input type="checkbox" :value="row['_id']" v-model="ids">
-                  </div>
-                </td>
-
-                <td v-for="(column, j_key) in get_show_columns" :key="j_key">
-                  <div v-if="column.datatype.value === 'date'">
-
-                    <div v-if="column.col_name.value === '超過年限日期'">
-                      {{ date_add_year(row['取得日期'], row['年限']) }}
-                    </div>
-                    <div v-else>
-                      {{ date_convert(row[column.col_name.value]) }}
-                    </div>
-
-                  </div>
-                  <div v-else>
-                    {{ row[column.col_name.value] }}
-                  </div>
-                </td>
-
-              </tr>
-            </tbody>
-
-          </table>
-
-        </div>
-      </div>
+      <HotTable ref="hotTableComponent" :settings="hotSettings"></HotTable>
 
     </div>
   </div>
 </template>
 
 <script>
+import { HotTable } from '@handsontable/vue3';
+import { registerAllModules } from 'handsontable/registry';
+
+import 'handsontable/dist/handsontable.full.css';
+
+registerAllModules();
+
 import ModalCRUD from '@/components/DatabaseModal/ModalCRUD.vue'
 import ModalInformation from '@/components/DatabaseModal/ModalInformation.vue'
 import ModalSetting from '@/components/DatabaseModal/ModalSetting.vue'
@@ -210,9 +165,13 @@ import ModalUpload from '@/components/DatabaseModal/ModalUpload.vue'
 
 import FileSaver from 'file-saver';
 
+import DataWorker from '@/javascript/DataWorker'
+
 export default {
   name: 'DatabaseTable',
   components: {
+    HotTable,
+
     ModalCRUD,
     ModalInformation,
     ModalSetting,
@@ -229,6 +188,50 @@ export default {
 
       // search
       search_mode: null,
+
+      // checkbox column name
+      check_colname: 'id_check',
+
+      // handsontable
+      hotSettings: {
+        data: [],
+        columns: [],
+
+        // table size
+        width: '100%',
+        height: '75vh',
+
+        // header for both col and row
+        colHeaders: true,
+        rowHeaders: true,
+
+        // the menu for all col
+        // dropdownMenu: true,
+        dropdownMenu: [
+          'filter_by_condition',
+          'filter_by_condition2',
+          'filter_operators',
+          'filter_by_value',
+          'filter_action_bar',
+        ],
+
+        // the filter for all col
+        filters: true,
+
+        // if can resize the col
+        manualColumnResize: true,
+
+        // option to sorting the data under this col
+        columnSorting: true,
+
+        // read only
+        readOnly: true,
+
+        licenseKey: "non-commercial-and-evaluation",
+
+        // event hook
+        afterChange: this.afterChangeVue,
+      },
     }
   },
   computed: {
@@ -322,6 +325,51 @@ export default {
         this.ids = [];
       }
     },
+    get_show_columns() {
+      const _colname = [];
+
+      // checkbox column
+      _colname.push({
+        title: 'id', data: this.check_colname, type: 'checkbox', readOnly: false,
+      });
+
+      for (let i = 0; i < this.get_show_columns.length; i++) {
+        const c_col = this.get_show_columns[i];
+
+        const hot_col = { title: c_col.col_name.value, data: c_col.col_name.value };
+
+        _colname.push(hot_col);
+      }
+
+      this.hotSettings.columns = _colname;
+
+      this.update_table();
+    },
+    db_rows() {
+      const _col = this.$store.state.db_struct;
+
+      this.hotSettings.data = this.db_rows;
+
+      for (let i = 0; i < this.hotSettings.data.length && i < this.db_rows.length; i++) {
+        const _raw = this.db_rows[i];
+        const _data = this.hotSettings.data[i];
+
+        for (let j = 0; j < _col.columns.length; j++) {
+          const c_col = _col.columns[j];
+
+          if (c_col.datatype.value === 'date') {
+
+            if (c_col.col_name.value === '超過年限日期') {
+              _data['超過年限日期'] = DataWorker.date_add_year(_raw['取得日期'], _raw['年限']);
+            } else {
+              _data[c_col.col_name.value] = DataWorker.date_convert(_raw[c_col.col_name.value]);
+            }
+          }
+        }
+      }
+
+      this.update_table();
+    },
   },
   methods: {
     set_mode(mode) {
@@ -351,39 +399,37 @@ export default {
         this.search_mode = c_search_mode;
       }
     },
-    date_convert(str) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
+    afterChangeVue(source, changes) {
+      if (changes === 'edit') {
+        const [_row, _col, _old_value, _new_value] = source[0];
+
+        if (_col !== this.check_colname) {
+          return;
+        }
+
+        const _hottable = this.$refs.hotTableComponent.hotInstance;
+        const _id = _hottable.getSourceDataAtRow(_hottable.toPhysicalRow(_row))['_id'];
+
+        /* potential BUG below */
+        // the redundent ids and this.db_rows[_row][this.check_colname]
+        // those values may need to be sync for every event happened
+
+        // do check and uncheck
+        if (_new_value) {
+          // check
+
+          this.ids.push(_id);
+        } else {
+          // uncheck: remove _id from array ids
+
+          this.ids = this.ids.filter(function (item) {
+            return item !== _id;
+          });
+        }
       }
-
-      const c_date = new Date(str);
-
-      return c_date.toLocaleString('en', {
-        hour12: false,
-        // dateStyle: 'short',
-        // timeStyle: 'short',
-
-        weekday: 'short',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
     },
-    date_add_year(str, year) {
-      if (Number(str) === 'NaN') {
-        // make it parseable
-        str = "'" + str + "'";
-      }
-
-      const c_date = new Date(str);
-      const _year = Number(year);
-
-      c_date.setFullYear(c_date.getFullYear() + _year);
-
-      return this.date_convert(c_date);
+    update_table() {
+      this.$refs.hotTableComponent.hotInstance.updateSettings(this.hotSettings);
     },
     async db_read() {
       try {
@@ -479,10 +525,26 @@ export default {
 </script>
 
 <style>
+/*
 .my_table {
   display: inline-block;
   align-items: center;
   justify-content: center;
   height: 65vh;
+}
+*/
+
+.handsontable span.colHeader {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.handsontable span.rowHeader {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.handsontable td {
+  font-size: 18px;
 }
 </style>
