@@ -407,7 +407,8 @@ export default {
           return;
         }
 
-        const _id = this.$refs.hotTableComponent.hotInstance.getSourceDataAtRow(_row)['_id'];
+        const _hottable = this.$refs.hotTableComponent.hotInstance;
+        const _id = _hottable.getSourceDataAtRow(_hottable.toPhysicalRow(_row))['_id'];
 
         /* potential BUG below */
         // the redundent ids and this.db_rows[_row][this.check_colname]
